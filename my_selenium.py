@@ -59,6 +59,8 @@ class Driver:
         make_game_button.click()
         sleep(5)
 
+        # self.sign_in(url, email, password)
+
     def create_game_part_two(self, vocabs):
         # Wait for the button to be clickable using the XPath
         image_library_button_xpath = "//div[@id='question-form']//button[@type='button']"
@@ -194,4 +196,6 @@ url = 'https://www.baamboozle.com/games/create'
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
+
+#Fix class and put methods inside
 
