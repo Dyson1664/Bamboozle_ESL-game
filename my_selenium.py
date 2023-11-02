@@ -7,6 +7,8 @@ from selenium.webdriver.common.by import By
 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import WebDriverException, ElementClickInterceptedException
+
 from dotenv import load_dotenv
 import os
 from selenium import webdriver
@@ -56,19 +58,6 @@ class Driver:
         make_game_button = self.driver.find_element(By.ID, 'five')
         make_game_button.click()
         sleep(5)
-
-    # def questions_search_loop(self, vocabs):
-    #     input_box = WebDriverWait(self.driver, 10).until(
-    #         EC.element_to_be_clickable((By.ID, "problem"))
-    #     )
-    #     input_box.click()
-    #     input_box.send_keys('What is it?')
-    #
-    #     vocab_box = WebDriverWait(self.driver, 10).until(
-    #         EC.element_to_be_clickable((By.ID, "solution1"))
-    #     )
-    #     vocab_box.click()
-    #     vocab_box.send_kets(vocabs)
 
     def create_game_part_two(self, vocabs):
         print('1')
@@ -142,16 +131,47 @@ def questions_search_loop(self, vocabs):
     image_library_button.click()
     sleep(3)
 #need to add something here to try again if time runs out
-    fifth_image = WebDriverWait(self.driver, 25).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, "div.giphy-gif:nth-of-type(5) img.giphy-gif-img.giphy-img-loaded"))
-    )
-    fifth_image.click()
+    try:
+        fifth_image = WebDriverWait(self.driver, 25).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "div.giphy-gif:nth-of-type(5) img.giphy-gif-img.giphy-img-loaded"))
+        )
+        fifth_image.click()
+    except:
+        close_reopen(self)
+        print('Had to close and reopen')
+
+
+
 
     save_button = WebDriverWait(self.driver, 10).until(
         EC.element_to_be_clickable((By.ID, "tally"))
     )
     save_button.click()
     sleep(2)
+def close_reopen(self):
+    try:
+        close_button = WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable((By.CLASS_NAME, 'close-gif'))
+        )
+        close_button.click()
+
+        image_library_button_xpath = "//div[@id='question-form']//button[@type='button']"
+        image_library_button = WebDriverWait(self.driver, 20).until(
+            EC.element_to_be_clickable((By.XPATH, image_library_button_xpath))
+        )
+
+        # Click the button
+        image_library_button.click()
+        sleep(5)
+
+        fifth_image = WebDriverWait(self.driver, 25).until(
+            EC.element_to_be_clickable(
+                (By.CSS_SELECTOR, "div.giphy-gif:nth-of-type(5) img.giphy-gif-img.giphy-img-loaded"))
+        )
+        fifth_image.click()
+    except WebDriverException as e:
+        print("Exception occurred while closing the popup: ", e)
+
 
 # driver = Driver()
 @app.route('/create_game', methods=['GET'])
@@ -191,12 +211,7 @@ def failure():
     return render_template('login_failure.html')
 
 url = 'https://www.baamboozle.com/games/create'
-# driver = Driver()
-# driver.sign_in(url, EMAIL, PASSWORD)
 
-#
-# if __name__ == '__main__':
-#     app.run(debug=True)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)  # Try a different port like 5001
