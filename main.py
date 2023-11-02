@@ -69,8 +69,8 @@ def create_game(driver, title):
     enter_title.send_keys(str(title))
 
 
-title, vocabs = split_data()
-create_game(driver, title)
+# title, vocabs = split_data()
+# create_game(driver, title)
 
 if __name__ == '__main__':
     app.run(debug=True)
