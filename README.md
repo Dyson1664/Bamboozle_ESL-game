@@ -18,7 +18,8 @@ This bot automates the creation of ESL (English as a Second Language) games on t
 ## Installation
 1. Clone the repository:
    ```sh
-   git clone https://github.com/<your-username>/<repo-name>.git
+   git clone https://github.com/Dyson1664/Bamboozle_ESL-game.git
+   
 2. pip install -r requirements.txt
    
 3. Set environment variables for credentials:
