@@ -3,16 +3,13 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-
-
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import WebDriverException, ElementClickInterceptedException
-
 from dotenv import load_dotenv
 import os
-from selenium import webdriver
 from time import sleep
+
 load_dotenv()
 
 PASSWORD = os.getenv('PASSWORD')
@@ -59,8 +56,6 @@ class Driver:
         make_game_button.click()
         sleep(5)
 
-        # self.sign_in(url, email, password)
-
     def create_game_part_two(self, vocabs):
         # Wait for the button to be clickable using the XPath
         image_library_button_xpath = "//div[@id='question-form']//button[@type='button']"
@@ -80,9 +75,9 @@ class Driver:
         )
         close_button.click()
         sleep(5)
-        for val in vocabs:
-            if val:
-                questions_search_loop(self, val)
+        for vocab in vocabs:
+            if vocab:
+                self.questions_search_loop(vocab)
             print('7')
 
         close_game = "//a[@class='btn btn-defaulted']"
@@ -93,53 +88,20 @@ class Driver:
         )
         make_game.click()
 
-    def close(self):
-        self.driver.quit()
-
-def questions_search_loop(self, vocabs):
-    input_box = WebDriverWait(self.driver, 10).until(
-        EC.element_to_be_clickable((By.ID, "problem"))
-    )
-    input_box.click()
-    input_box.clear()
-    input_box.send_keys('What is it?')
-
-    vocab_box = WebDriverWait(self.driver, 10).until(
-        EC.element_to_be_clickable((By.ID, "solution1"))
-    )
-    vocab_box.click()
-    vocab_box.clear()
-    vocab_box.send_keys(vocabs)
-
-    image_library_button_xpath = "//div[@id='question-form']//button[@type='button']"
-    image_library_button = WebDriverWait(self.driver, 20).until(
-        EC.element_to_be_clickable((By.XPATH, image_library_button_xpath))
-    )
-
-    # Click the button
-    image_library_button.click()
-    sleep(3)
-#need to add something here to try again if time runs out
-    try:
-        fifth_image = WebDriverWait(self.driver, 25).until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, "div.giphy-gif:nth-of-type(5) img.giphy-gif-img.giphy-img-loaded"))
+    def questions_search_loop(self, vocabs):
+        input_box = WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable((By.ID, "problem"))
         )
-        fifth_image.click()
-    except:
-        close_reopen(self)
-        print('Had to close and reopen')
+        input_box.click()
+        input_box.clear()
+        input_box.send_keys('What is it?')
 
-    save_button = WebDriverWait(self.driver, 10).until(
-        EC.element_to_be_clickable((By.ID, "tally"))
-    )
-    save_button.click()
-    sleep(2)
-def close_reopen(self):
-    try:
-        close_button = WebDriverWait(self.driver, 10).until(
-            EC.element_to_be_clickable((By.CLASS_NAME, 'close-gif'))
+        vocab_box = WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable((By.ID, "solution1"))
         )
-        close_button.click()
+        vocab_box.click()
+        vocab_box.clear()
+        vocab_box.send_keys(vocabs)
 
         image_library_button_xpath = "//div[@id='question-form']//button[@type='button']"
         image_library_button = WebDriverWait(self.driver, 20).until(
@@ -148,15 +110,49 @@ def close_reopen(self):
 
         # Click the button
         image_library_button.click()
-        sleep(5)
+        sleep(3)
+        # need to add something here to try again if time runs out
+        try:
+            fifth_image = WebDriverWait(self.driver, 25).until(
+                EC.element_to_be_clickable(
+                    (By.CSS_SELECTOR, "div.giphy-gif:nth-of-type(5) img.giphy-gif-img.giphy-img-loaded"))
+            )
+            fifth_image.click()
+        except:
+            self.close_reopen()
+            print('Had to close and reopen')
 
-        fifth_image = WebDriverWait(self.driver, 25).until(
-            EC.element_to_be_clickable(
-                (By.CSS_SELECTOR, "div.giphy-gif:nth-of-type(5) img.giphy-gif-img.giphy-img-loaded"))
+        save_button = WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable((By.ID, "tally"))
         )
-        fifth_image.click()
-    except WebDriverException as e:
-        print("Exception occurred while closing the popup: ", e)
+        save_button.click()
+        sleep(2)
+
+    def close_reopen(self):
+        try:
+            close_button = WebDriverWait(self.driver, 10).until(
+                EC.element_to_be_clickable((By.CLASS_NAME, 'close-gif'))
+            )
+            close_button.click()
+
+            image_library_button_xpath = "//div[@id='question-form']//button[@type='button']"
+            image_library_button = WebDriverWait(self.driver, 20).until(
+                EC.element_to_be_clickable((By.XPATH, image_library_button_xpath))
+            )
+
+            image_library_button.click()
+            sleep(5)
+
+            fifth_image = WebDriverWait(self.driver, 25).until(
+                EC.element_to_be_clickable(
+                    (By.CSS_SELECTOR, "div.giphy-gif:nth-of-type(5) img.giphy-gif-img.giphy-img-loaded"))
+            )
+            fifth_image.click()
+        except WebDriverException as e:
+            print("Exception occurred while closing the popup: ", e)
+
+    def close(self):
+        self.driver.quit()
 
 
 @app.route('/create_game', methods=['GET'])
@@ -199,3 +195,5 @@ if __name__ == '__main__':
 
 #Fix class and put methods inside
 
+#so i could just move functions inside the Driver class and they would run the same way. no change to the code?
+# I have to use self before the method to call a method if its in the class. I have to pass the param (self) if its a regular function?
