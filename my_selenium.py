@@ -38,55 +38,72 @@ class Driver:
 
     def sign_in(self, url, email, password):
         self.driver.get(url)
-        email_input = self.driver.find_element(By.ID, "email")
-        email_input.send_keys(email)
-        password_input = self.driver.find_element(By.ID, "password")
-        password_input.send_keys(password)
-        sign_in_button = self.driver.find_element(By.CSS_SELECTOR, "button[type='submit']")
-        sign_in_button.click()
+        try:
+            email_input = WebDriverWait(self.driver, 15).until(
+                EC.presence_of_element_located((By.ID, "email"))
+            )
+            email_input.send_keys(email)
+            password_input = WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.ID, "password")))
+            password_input.send_keys(password)
+            sign_in_button = WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "button[type='submit']")))
+            sign_in_button.click()
+        except WebDriverException as e:
+            print("Exception occurred while interacting with the element: ", e)
 
     def create_game(self, title):
-        title_box = self.driver.find_element(By.ID, 'one')
-        title_box.send_keys(title)
+        try:
+            title_box = WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.ID, 'one')))
+            title_box.send_keys(title)
 
-        description_box = self.driver.find_element(By.ID, 'two')
-        description_box.send_keys(title)
+            description_box = WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.ID, 'two')))
+            description_box.send_keys(title)
 
-        make_game_button = self.driver.find_element(By.ID, 'five')
-        make_game_button.click()
-        sleep(5)
+            make_game_button = WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.ID, 'five')))
+            make_game_button.click()
+            sleep(5)
+        except WebDriverException as e:
+            print("Exception occurred while interacting with the element: ", e)
+
 
     def create_game_part_two(self, vocabs):
-        # Wait for the button to be clickable using the XPath
-        image_library_button_xpath = "//div[@id='question-form']//button[@type='button']"
-        image_library_button = WebDriverWait(self.driver, 20).until(
-            EC.element_to_be_clickable((By.XPATH, image_library_button_xpath))
-        )
-        image_library_button.click()
+        try:
+            image_library_button_xpath = "//div[@id='question-form']//button[@type='button']"
+            image_library_button = WebDriverWait(self.driver, 20).until(
+                EC.element_to_be_clickable((By.XPATH, image_library_button_xpath))
+            )
+            image_library_button.click()
 
-        image_button = WebDriverWait(self.driver, 20).until(
-            EC.element_to_be_clickable((By.ID, "web-lib"))
-        )
-        image_button.click()
-        sleep(6)
+            image_button = WebDriverWait(self.driver, 20).until(
+                EC.element_to_be_clickable((By.ID, "web-lib"))
+            )
+            image_button.click()
+            sleep(6)
 
-        close_button = WebDriverWait(self.driver, 10).until(
-            EC.element_to_be_clickable((By.CLASS_NAME, 'close-gif'))
-        )
-        close_button.click()
-        sleep(5)
-        for vocab in vocabs:
-            if vocab:
-                self.questions_search_loop(vocab)
-            print('7')
+            close_button = WebDriverWait(self.driver, 10).until(
+                EC.element_to_be_clickable((By.CLASS_NAME, 'close-gif'))
+            )
+            close_button.click()
+            sleep(5)
+            for vocab in vocabs:
+                if vocab:
+                    self.questions_search_loop(vocab)
+                print('7')
 
-        close_game = "//a[@class='btn btn-defaulted']"
+            close_game = "//a[@class='btn btn-defaulted']"
 
-        # Use WebDriverWait to wait for the element to be clickable
-        make_game = WebDriverWait(self.driver, 20).until(
-            EC.element_to_be_clickable((By.XPATH, close_game))
-        )
-        make_game.click()
+            # Use WebDriverWait to wait for the element to be clickable
+            make_game = WebDriverWait(self.driver, 20).until(
+                EC.element_to_be_clickable((By.XPATH, close_game))
+            )
+            make_game.click()
+
+        except WebDriverException as e:
+            print("Exception occurred while interacting with the element: ", e)
 
     def questions_search_loop(self, vocabs):
         input_box = WebDriverWait(self.driver, 10).until(
