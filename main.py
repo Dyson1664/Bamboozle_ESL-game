@@ -69,7 +69,6 @@ class Driver:
         except WebDriverException as e:
             print("Exception occurred while interacting with the element: ", e)
 
-
     def create_game_part_two(self, vocabs):
         try:
             image_library_button_xpath = "//div[@id='question-form']//button[@type='button']"
@@ -171,7 +170,6 @@ class Driver:
     def close(self):
         self.driver.quit()
 
-
 @app.route('/create_game', methods=['GET'])
 def create_game_route():
     data = session.get('data', {})
@@ -184,7 +182,6 @@ def create_game_route():
 
     title = data.get('title')
     vocabs = [data.get(f'vocab{i}', '') for i in range(1, 17)]
-
 
     # Sign in and create the game
     try:
@@ -207,6 +204,7 @@ def failure():
 
 url = 'https://www.baamboozle.com/games/create'
 
+#this port is free
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
 
