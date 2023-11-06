@@ -193,7 +193,7 @@ def create_game_route():
         return redirect(url_for('success_page'))
     except Exception as e:
         print(e)  # For debugging purposes, print the exception
-        # Handle login failure, perhaps by redirecting to a login failure page
+        # Handle login failure
         return redirect(url_for('failure'))
 
 @app.route('/success', methods=['GET'])
@@ -210,7 +210,5 @@ url = 'https://www.baamboozle.com/games/create'
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
 
-#Fix class and put methods inside
 
-#so i could just move functions inside the Driver class and they would run the same way. no change to the code?
-# I have to use self before the method to call a method if its in the class. I have to pass the param (self) if its a regular function?
+
