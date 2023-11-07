@@ -11,7 +11,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 from dotenv import load_dotenv
 import os
 from time import sleep
-import db_1
 
 load_dotenv()
 
@@ -21,33 +20,23 @@ EMAIL = os.getenv('EMAIL')
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
+@app.route('/', methods=['GET', 'POST'])
+def run():
+    if request.method == 'POST':
+        session_data = {'title': request.form['title']}
+        for i in range(1, 17):
+            session_data.update(
+                {f'vocab{i}': request.form[f'vocab{i}'] for i in range(1, 17) if request.form[f'vocab{i}'].strip()})
+        session['data'] = session_data
+        return redirect(url_for('create_game_route'))
+    return render_template('index.html')
+
 class Driver:
     def __init__(self):
         chrome_options = Options()
         chrome_options.add_experimental_option("detach", True)
         service = Service(ChromeDriverManager().install())
         self.driver = webdriver.Chrome(service=service, options=chrome_options)
-
-    def vocabs_to_enter(self, name, unit):
-        title, vocabs = db_1.get_vocab(name, unit)
-        return title, vocabs
-    def enter_vocab(self, title, vocabs):
-        self.driver.get('http://127.0.0.1:5001/')
-        try:
-            title_box = WebDriverWait(self.driver, 15).until(
-                EC.presence_of_element_located((By.ID, 'title')))
-            title_box.clear()
-            title_box.send_keys(title)
-
-            for num, box in enumerate(vocabs, start=1):
-                input_box = WebDriverWait(self.driver, 15).until(EC.presence_of_element_located((By.ID, f'vocab{num}')))
-                input_box.clear()
-                input_box.send_keys(box)
-
-        except WebDriverException as e:
-            print("Exception occurred while interacting with the element: ", e)
-
-
 
     def sign_in(self, url, email, password):
         self.driver.get(url)
@@ -104,6 +93,7 @@ class Driver:
             for vocab in vocabs:
                 if vocab:
                     self.questions_search_loop(vocab)
+                print('7')
 
             close_game = "//a[@class='btn btn-defaulted']"
 
@@ -182,28 +172,29 @@ class Driver:
     def close(self):
         self.driver.quit()
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/create_game', methods=['GET'])
 def create_game_route():
-    if request.method == 'POST':
-        title = request.form['bookName']
-        unit = request.form['unitNumber']
+    data = session.get('data', {})
+    if not data:
+        # Redirect to home if there's no data in session
+        return redirect(url_for('run'))
 
-        local_driver = Driver()
-        title, vocabs = local_driver.vocabs_to_enter(title, unit)
+    # Initialize the driver within the function scope
+    local_driver = Driver()
 
-        if not title and vocabs:
-            return redirect(url_for('run'))
+    title = data.get('title')
+    vocabs = [data.get(f'vocab{i}', '') for i in range(1, 17)]
 
-        try:
-            local_driver.sign_in(url, EMAIL, PASSWORD)
-            local_driver.create_game(title)
-            local_driver.create_game_part_two(vocabs)
-            return redirect(url_for('success_page'))
-        except Exception as e:
-            print(e)  # For debugging purposes, print the exception
-            # Handle login failure
-            return redirect(url_for('failure'))
-    return render_template('book_unit.html')
+    # Sign in and create the game
+    try:
+        local_driver.sign_in(url, EMAIL, PASSWORD)
+        local_driver.create_game(title)
+        local_driver.create_game_part_two(vocabs)
+        return redirect(url_for('success_page'))
+    except Exception as e:
+        print(e)  # For debugging purposes, print the exception
+        # Handle login failure
+        return redirect(url_for('failure'))
 
 @app.route('/success', methods=['GET'])
 def success_page():
@@ -215,8 +206,8 @@ def failure():
 
 url = 'https://www.baamboozle.com/games/create'
 
+#this port is free
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
 
-
-
+#original way with my own website

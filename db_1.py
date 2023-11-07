@@ -249,7 +249,9 @@ def remove_duplicates():
         '''
         cursor.execute(delete_query)
         conn.commit()
-remove_duplicates()
+
+
+# remove_duplicates()
 
 # create_db()
 # insert_vocab(vocab_entries)
@@ -266,14 +268,18 @@ def get_vocab(book, unit):
     cursor.close()
     conn.close()
 
+    title = book + ' Unit ' + str(unit) + ' Vocab'
     list1 = []
     for word in results:
         list1.append(''.join(word))
-        print(''.join(word))
 
     print(list1)
-    return list1
+    print(title)
+    return title, list1
 
+# get_vocab('Look2', 2)
 
-
-get_vocab('Look2', 2)
+if __name__ == '__main__':
+    create_db()  # Create the database and tables
+    insert_vocab(vocab_entries)  # Insert initial vocabulary entries
+    remove_duplicates()  # Optionally remove duplicates if needed
