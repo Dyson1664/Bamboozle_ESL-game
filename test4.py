@@ -21,18 +21,6 @@ EMAIL = os.getenv('EMAIL')
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
-# @app.route('/', methods=['GET', 'POST'])
-# def run():
-#     if request.method == 'POST':
-#         session_data = {'title': request.form['title']}
-#         for i in range(1, 17):
-#             session_data.update(
-#                 {f'vocab{i}': request.form[f'vocab{i}'] for i in range(1, 17) if request.form[f'vocab{i}'].strip()})
-#         session['data'] = session_data
-#         return redirect(url_for('create_game_route'))
-#     else:
-#         return render_template('index.html')
-
 class Driver:
     def __init__(self):
         chrome_options = Options()
@@ -116,7 +104,6 @@ class Driver:
             for vocab in vocabs:
                 if vocab:
                     self.questions_search_loop(vocab)
-                print('7')
 
             close_game = "//a[@class='btn btn-defaulted']"
 
@@ -195,40 +182,62 @@ class Driver:
     def close(self):
         self.driver.quit()
 
-@app.route('/', methods=['GET'])
+@app.route('/', methods=['GET', 'POST'])
 def create_game_route():
-    local_driver = Driver()
-    title, vocabs = local_driver.vocabs_to_enter('Look2', 3)
-    # title, unit = local_driver.vocabs_to_enter('Look2', 3)
-    #
-    # local_driver.enter_vocab(title, unit)
-    #
-    # sleep(4)
-    if not title and vocabs:
-        return redirect(url_for('run'))
+    if request.method == 'POST':
+        title1 = request.form['bookName']
+        unit = request.form['unitNumber']
 
-    # data = session.get('data', {})
-    # if not data:
-    #     # Redirect to home if there's no data in session
-    #      return redirect(url_for('run'))
+        local_driver = Driver()
+        title, vocabs = local_driver.vocabs_to_enter(title1, unit)
 
-    # Initialize the driver within the function scope
-    # local_driver = Driver()
+        session['title'] = title
+        session['vocabs'] = vocabs
 
-    # title = data.get('title')
-    # vocabs = [data.get(f'vocab{i}', '') for i in range(1, 17)]
-    # start()
-    # local_driver = Driver()
-    # Sign in and create the game
-    try:
-        local_driver.sign_in(url, EMAIL, PASSWORD)
-        local_driver.create_game(title)
-        local_driver.create_game_part_two(vocabs)
-        return redirect(url_for('success_page'))
-    except Exception as e:
-        print(e)  # For debugging purposes, print the exception
-        # Handle login failure
-        return redirect(url_for('failure'))
+        return redirect(url_for('check'))
+    return render_template('book_unit.html')
+
+# @app.route('/check', methods=['GET, POST'])
+@app.route('/check', methods=['GET', 'POST'])
+def check():
+    if request.method == 'POST':
+        session_data = {'title': request.form['title']}
+        for i in range(1, 17):
+            session_data.update(
+                {f'vocab{i}': request.form[f'vocab{i}'] for i in range(1, 17) if request.form[f'vocab{i}'].strip()})
+        session['data'] = session_data
+        return redirect(url_for('go'))
+    else:
+        if 'title' in session:
+            title = session.get('title')
+
+        if 'vocabs' in session:
+            vocabs = session.get('vocabs')
+
+        return render_template('index.html', title=title, vocabs=vocabs)
+
+
+@app.route('/go')
+def go():
+    if 'data' in session:
+        title = session.get('title')
+        vocabs = session.get('vocabs')
+
+
+        if not title and vocabs:
+            return redirect(url_for('run'))
+
+        local_driver = Driver()
+        try:
+            local_driver.sign_in(url, EMAIL, PASSWORD)
+            local_driver.create_game(title)
+            local_driver.create_game_part_two(vocabs)
+            return redirect(url_for('success_page'))
+        except Exception as e:
+            print(e)  # For debugging purposes, print the exception
+            # Handle login failure
+            return redirect(url_for('failure'))
+    return render_template('book_unit.html')
 
 @app.route('/success', methods=['GET'])
 def success_page():
@@ -240,36 +249,8 @@ def failure():
 
 url = 'https://www.baamboozle.com/games/create'
 
-# def start():
-#     local_driver = Driver()
-#     # title, vocabs = local_driver.vocabs_to_enter('Look2', 3)
-#     title, unit = local_driver.vocabs_to_enter('Look2', 3)
-#
-#     local_driver.enter_vocab(title, unit)
-
-    # if not title and vocabs:
-    #     return redirect(url_for('run'))
-
-    # data = session.get('data', {})
-    # if not data:
-    #     # Redirect to home if there's no data in session
-    #      return redirect(url_for('run'))
-
-# driver = Driver()
-# title, unit = driver.vocabs_to_enter('Look2', 3)
-
-# driver.enter_vocab(title, unit)
-
-#this port is free
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
-
-#bit of old way and new way
-
-
-
-
-
 
 
 
