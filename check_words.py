@@ -5,8 +5,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import WebDriverException, ElementClickInterceptedException
-from selenium.webdriver.chrome.service import Service
+from selenium.common.exceptions import WebDriverException
 from webdriver_manager.chrome import ChromeDriverManager
 from dotenv import load_dotenv
 import os
@@ -32,7 +31,7 @@ class Driver:
         title, vocabs = db_1.get_vocab(name, unit)
         return title, vocabs
     def enter_vocab(self, title, vocabs):
-        self.driver.get('http://127.0.0.1:5001/')
+        self.driver.get('http://127.0.0.1:5001/vocab')
         try:
             title_box = WebDriverWait(self.driver, 15).until(
                 EC.presence_of_element_located((By.ID, 'title')))
@@ -181,52 +180,46 @@ class Driver:
 
     def close(self):
         self.driver.quit()
-
 @app.route('/', methods=['GET', 'POST'])
-def create_game_route():
+def book_unit():
     if request.method == 'POST':
-        title1 = request.form['bookName']
-        unit = request.form['unitNumber']
-
-        local_driver = Driver()
-        title, vocabs = local_driver.vocabs_to_enter(title1, unit)
-
-        session['title'] = title
-        session['vocabs'] = vocabs
-
-        return redirect(url_for('check'))
+        try:
+            book_name = request.form['bookName']
+            unit_number = request.form['unitNumber']
+            # query db
+            title, vocabs = db_1.get_vocab(book_name, unit_number)
+            # Store retrieved data in session.
+            session['title'] = title
+            session['vocabs'] = vocabs
+            # Redirect to the page to show the populated vocabulary form.
+            return redirect(url_for('show_vocab'))
+        except KeyError:
+            # Render the book_unit page with an error if the form fields are not found.
+            return render_template('book_unit.html', error="Please fill in all the fields.")
     return render_template('book_unit.html')
 
-# @app.route('/check', methods=['GET, POST'])
-@app.route('/check', methods=['GET', 'POST'])
-def check():
-    if request.method == 'POST':
-        session_data = {'title': request.form['title']}
-        for i in range(1, 17):
-            session_data.update(
-                {f'vocab{i}': request.form[f'vocab{i}'] for i in range(1, 17) if request.form[f'vocab{i}'].strip()})
-        session['data'] = session_data
-        return redirect(url_for('go'))
-    else:
-        if 'title' in session:
-            title = session.get('title')
-
-        if 'vocabs' in session:
-            vocabs = session.get('vocabs')
-
+@app.route('/vocab', methods=['GET', 'POST'])
+def show_vocab():
+    # check we have the data in the session.
+    if 'title' in session and 'vocabs' in session:
+        title = session.get('title', None)
+        vocabs = session.get('vocabs', None)
+        if request.method == 'POST':
+            # Process the submitted vocab data and start the bot.
+            return redirect(url_for('go'))
         return render_template('index.html', title=title, vocabs=vocabs)
+    else:
+        # If the session data is missing, redirect back to the book_unit page.
+
+        return redirect(url_for('book_unit'))
 
 
 @app.route('/go')
 def go():
-    if 'data' in session:
-        title = session.get('title')
-        vocabs = session.get('vocabs')
-
-
-        if not title and vocabs:
-            return redirect(url_for('run'))
-
+    if 'title' in session and 'vocabs' in session:
+        title = session['title']
+        vocabs = session['vocabs']
+        # load bot
         local_driver = Driver()
         try:
             local_driver.sign_in(url, EMAIL, PASSWORD)
@@ -234,10 +227,11 @@ def go():
             local_driver.create_game_part_two(vocabs)
             return redirect(url_for('success_page'))
         except Exception as e:
-            print(e)  # For debugging purposes, print the exception
+            print(e)
             # Handle login failure
-            return redirect(url_for('failure'))
-    return render_template('book_unit.html')
+        return render_template('success.html')
+    else:
+        return redirect(url_for('book_unit'))
 
 @app.route('/success', methods=['GET'])
 def success_page():
@@ -251,6 +245,5 @@ url = 'https://www.baamboozle.com/games/create'
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
-
 
 

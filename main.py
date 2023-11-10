@@ -138,12 +138,13 @@ class Driver:
 
         # Click the button
         image_library_button.click()
-        sleep(3)
+        #is it needed?
+        # sleep(3)
         # need to add something here to try again if time runs out
         try:
             fifth_image = WebDriverWait(self.driver, 25).until(
                 EC.element_to_be_clickable(
-                    (By.CSS_SELECTOR, "div.giphy-gif:nth-of-type(5) img.giphy-gif-img.giphy-img-loaded"))
+                    (By.CSS_SELECTOR, "div.giphy-gif:nth-of-type(1) img.giphy-gif-img.giphy-img-loaded"))
             )
             fifth_image.click()
         except:
@@ -169,13 +170,14 @@ class Driver:
             )
 
             image_library_button.click()
-            sleep(5)
-
-            fifth_image = WebDriverWait(self.driver, 25).until(
-                EC.element_to_be_clickable(
-                    (By.CSS_SELECTOR, "div.giphy-gif:nth-of-type(5) img.giphy-gif-img.giphy-img-loaded"))
-            )
-            fifth_image.click()
+            try:
+                fifth_image = WebDriverWait(self.driver, 25).until(
+                    EC.element_to_be_clickable(
+                        (By.CSS_SELECTOR, "div.giphy-gif:nth-of-type(5) img.giphy-gif-img.giphy-img-loaded"))
+                )
+                fifth_image.click()
+            except WebDriverException as e:
+                print('Couldnt click 5th image', e)
         except WebDriverException as e:
             print("Exception occurred while closing the popup: ", e)
 
