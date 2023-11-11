@@ -38,6 +38,7 @@
 <body>
     <div class="container">
         <h2>BAMBOOZLE GAME</h2>
+        <!-- Book Form -->
         <form id="bookForm" method="post">
             <div class="form-group">
                 <label for="bookName">Book Name:</label>
@@ -47,7 +48,18 @@
                 <label for="unitNumber">Unit Number:</label>
                 <input type="number" class="form-control" id="unitNumber" name="unitNumber" placeholder="Enter unit number" required>
             </div>
+            <input type="hidden" name="form_type" value="book_form">
             <button type="submit" class="btn btn-custom">Submit</button>
+        </form>
+
+        <!-- Vocabulary Form -->
+        <form id="vocabForm" method="post">
+            <div class="form-group">
+                <label for="vocabList">Vocabulary List:</label>
+                <textarea class="form-control" id="vocabList" name="vocabList" placeholder="Enter vocabulary list" rows="4"></textarea>
+            </div>
+            <input type="hidden" name="form_type" value="vocab_form">
+            <button type="submit" class="btn btn-custom">Enter</button>
         </form>
     </div>
 

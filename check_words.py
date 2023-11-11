@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 import os
 from time import sleep
 import db_1
+import openai
 
 load_dotenv()
 
@@ -64,6 +65,7 @@ class Driver:
         except WebDriverException as e:
             print("Exception occurred while interacting with the element: ", e)
 
+    #create game name and description
     def create_game(self, title):
         try:
             title_box = WebDriverWait(self.driver, 10).until(
@@ -77,10 +79,11 @@ class Driver:
             make_game_button = WebDriverWait(self.driver, 10).until(
                 EC.presence_of_element_located((By.ID, 'five')))
             make_game_button.click()
-            sleep(5)
+
         except WebDriverException as e:
             print("Exception occurred while interacting with the element: ", e)
 
+    #loop though adding vocab and clicking pictures
     def create_game_part_two(self, vocabs):
         try:
             image_library_button_xpath = "//div[@id='question-form']//button[@type='button']"
@@ -99,7 +102,7 @@ class Driver:
                 EC.element_to_be_clickable((By.CLASS_NAME, 'close-gif'))
             )
             close_button.click()
-            sleep(5)
+
             for vocab in vocabs:
                 if vocab:
                     self.questions_search_loop(vocab)
@@ -137,23 +140,30 @@ class Driver:
 
         # Click the button
         image_library_button.click()
+        # is it needed?
         sleep(3)
         # need to add something here to try again if time runs out
         try:
-            fifth_image = WebDriverWait(self.driver, 25).until(
+            first_image = WebDriverWait(self.driver, 15).until(
                 EC.element_to_be_clickable(
-                    (By.CSS_SELECTOR, "div.giphy-gif:nth-of-type(5) img.giphy-gif-img.giphy-img-loaded"))
+                    (By.CSS_SELECTOR, "div.giphy-gif:nth-of-type(1) img.giphy-gif-img.giphy-img-loaded"))
             )
-            fifth_image.click()
+            first_image.click()
         except:
-            self.close_reopen()
-            print('Had to close and reopen')
+            try:
+                fifth_image = WebDriverWait(self.driver, 15).until(
+                    EC.element_to_be_clickable(
+                        (By.CSS_SELECTOR, "div.giphy-gif:nth-of-type(5) img.giphy-gif-img.giphy-img-loaded"))
+                )
+                fifth_image.click()
+            except:
+                self.close_reopen()
+            print('Couldnt click first pic. Had to close and reopen')
 
         save_button = WebDriverWait(self.driver, 10).until(
             EC.element_to_be_clickable((By.ID, "tally"))
         )
         save_button.click()
-        sleep(2)
 
     def close_reopen(self):
         try:
@@ -168,13 +178,21 @@ class Driver:
             )
 
             image_library_button.click()
-            sleep(5)
 
-            fifth_image = WebDriverWait(self.driver, 25).until(
-                EC.element_to_be_clickable(
-                    (By.CSS_SELECTOR, "div.giphy-gif:nth-of-type(5) img.giphy-gif-img.giphy-img-loaded"))
-            )
-            fifth_image.click()
+            try:
+
+                first_image = WebDriverWait(self.driver, 15).until(
+                    EC.element_to_be_clickable(
+                        (By.CSS_SELECTOR, "div.giphy-gif:nth-of-type(1) img.giphy-gif-img.giphy-img-loaded"))
+                )
+                first_image.click()
+
+            except:
+                fifth_image = WebDriverWait(self.driver, 15).until(
+                    EC.element_to_be_clickable(
+                        (By.CSS_SELECTOR, "div.giphy-gif:nth-of-type(5) img.giphy-gif-img.giphy-img-loaded"))
+                )
+                fifth_image.click()
         except WebDriverException as e:
             print("Exception occurred while closing the popup: ", e)
 
@@ -205,6 +223,15 @@ def show_vocab():
         title = session.get('title', None)
         vocabs = session.get('vocabs', None)
         if request.method == 'POST':
+            new_title = request.form['title']
+            #get vocabs from input boxes
+            vocabs = [request.form[f'vocab{i}'] for i in range(1, 17)]
+            #strip them
+            stripped_vocabs = [vocab.strip() for vocab in vocabs]
+            print(stripped_vocabs)
+            session['new_title'] = new_title
+            session['new_vocabs'] = stripped_vocabs
+
             # Process the submitted vocab data and start the bot.
             return redirect(url_for('go'))
         return render_template('index.html', title=title, vocabs=vocabs)
@@ -217,8 +244,8 @@ def show_vocab():
 @app.route('/go')
 def go():
     if 'title' in session and 'vocabs' in session:
-        title = session['title']
-        vocabs = session['vocabs']
+        title = session['new_title']
+        vocabs = session['new_vocabs']
         # load bot
         local_driver = Driver()
         try:
@@ -242,6 +269,8 @@ def failure():
     return render_template('login_failure.html')
 
 url = 'https://www.baamboozle.com/games/create'
+
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
