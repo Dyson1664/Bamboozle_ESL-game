@@ -17,6 +17,7 @@ load_dotenv()
 
 PASSWORD = os.getenv('PASSWORD')
 EMAIL = os.getenv('EMAIL')
+API_KEY = os.getenv('API_KEY')
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -206,7 +207,7 @@ def book_unit():
         # Check for vocabulary list submission
         if 'vocabList' in request.form:
             vocab_list = request.form['vocabList']
-            print(vocab_list)
+
             # Process the vocabulary list
             # ... (your code to handle vocab list)
 
@@ -219,53 +220,6 @@ def book_unit():
 
         # Check for book form submission
         if 'bookName' in request.form and 'unitNumber' in request.form:
-            try:
-                book_name = request.form['bookName']
-                unit_number = request.form['unitNumber']
-                # query db
-                title, vocabs = db_1.get_vocab(book_name, unit_number)
-
-                # Here, use the processed vocabs from the session if available
-                processed_vocabs = session.get('processed_vocabs', vocabs)
-
-                # Store retrieved data in session.
-                session['title'] = title
-                session['vocabs'] = processed_vocabs
-
-                # Clear the processed vocabs from the session
-                session.pop('processed_vocabs', None)
-
-                # Redirect to the page to show the populated vocabulary form.
-                return redirect(url_for('show_vocab'))
-            except KeyError:
-                # Render the book_unit page with an error if the form fields are not found.
-                return render_template('book_unit.html', error="Please fill in all the fields.")
-
-    # Render the page for a GET request or if no form data is submitted
-    return render_template('book_unit.html')
-
-
-@app.route('/', methods=['GET', 'POST'])
-def book_unit():
-    if request.method == 'POST':
-        form_type = request.form.get('form_type')
-
-        # Check for vocabulary list submission
-        if form_type == 'vocab_form':
-            vocab_list = request.form.get('vocabList')
-            print(vocab_list)
-            # Process the vocabulary list
-            # ... (your code to handle vocab list)
-
-            # Store the processed vocab list in the session temporarily
-            session['processed_vocabs'] = vocab_list
-
-            # Re-render the same page without redirecting
-            return render_template('book_unit.html',
-                                   message="Vocabulary list processed. Please submit the book form to continue.")
-
-        # Check for book form submission
-        elif form_type == 'book_form':
             try:
                 book_name = request.form['bookName']
                 unit_number = request.form['unitNumber']
@@ -326,38 +280,39 @@ url = 'https://www.baamboozle.com/games/create'
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
 
-
-
-
-
-
 import openai
 
-def generate_esl_quiz(prompt, api_key):
+
+def generate_esl_quiz(vocab_words, api_key, max_tokens=250):
     """
-    Function to generate an ESL quiz using OpenAI's GPT-4 API.
+    Function to generate an ESL quiz for 10-year-olds.
 
     Parameters:
-    prompt (str): The prompt describing the quiz requirements.
-    api_key (str): Your OpenAI API key.
-
-    Returns:
-    str: The generated quiz text.
+    - vocab_words: A list of vocabulary words to include in the quiz.
+    - api_key: API key for OpenAI.
+    - max_tokens: The maximum length of the generated quiz.
     """
+    if not vocab_words:
+        return "Vocabulary list is empty."
+
+    formatted_vocab = ', '.join(vocab_words)
+    prompt = f"Create a beginner ESL quiz about the following vocab words: {formatted_vocab}. " \
+             f"Create a gap fill with the words. Also create a short comprehension with some of the words. " \
+             f"It should be 1 page in total."
+
     openai.api_key = api_key
 
     try:
         response = openai.Completion.create(
-            model="text-davinci-003",  # Replace with the model you are using, if different.
+            model="gpt-4",  # Replace with the model you are using, if different.
             prompt=prompt,
-            max_tokens=150  # Adjust as needed for the length of quiz desired.
+            max_tokens=max_tokens
         )
         return response.choices[0].text.strip()
     except Exception as e:
         return f"An error occurred: {e}"
-
 # Example usage:
-# quiz_prompt = "Create a beginner ESL quiz about daily routines."
+quiz_prompt = ['egg', 'ball', 'hat', 'apple', 'big', 'small']
 # my_api_key = "your-api-key-here"
-# quiz = generate_esl_quiz(quiz_prompt, my_api_key)
-# print(quiz)
+quiz = generate_esl_quiz(quiz_prompt, API_KEY)
+print(quiz)
