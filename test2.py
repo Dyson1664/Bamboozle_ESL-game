@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, send_file
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -12,13 +12,21 @@ import os
 from time import sleep
 import db_1
 import openai
+from docx import Document
+
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
 
 load_dotenv()
 
 PASSWORD = os.getenv('PASSWORD')
 EMAIL = os.getenv('EMAIL')
 API_KEY = os.getenv('API_KEY')
-
+E_PASS = os.getenv('E_PASS')
+E_NAME = os.getenv('E_NAME')
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
@@ -207,7 +215,10 @@ def book_unit():
         # Check for vocabulary list submission
         if 'vocabList' in request.form:
             vocab_list = request.form['vocabList']
-
+            print(vocab_list)
+            response = generate_esl_quiz(vocab_list, API_KEY, max_tokens=550)
+            create_a_word_document(response)
+            send_email_with_attachment(send_from, password, send_to, subject, body, file_path)
             # Process the vocabulary list
             # ... (your code to handle vocab list)
 
@@ -226,9 +237,9 @@ def book_unit():
                 # query db
                 title, vocabs = db_1.get_vocab(book_name, unit_number)
 
-                # Here, use the processed vocabs from the session if available
+                # # Here, use the processed vocabs from the session if available
                 processed_vocabs = session.get('processed_vocabs', vocabs)
-
+                print(title, vocabs)
                 # Store retrieved data in session.
                 session['title'] = title
                 session['vocabs'] = processed_vocabs
@@ -237,7 +248,7 @@ def book_unit():
                 session.pop('processed_vocabs', None)
 
                 # Redirect to the page to show the populated vocabulary form.
-                return redirect(url_for('show_vocab'))
+                return redirect(url_for('go'))
             except KeyError:
                 # Render the book_unit page with an error if the form fields are not found.
                 return render_template('book_unit.html', error="Please fill in all the fields.")
@@ -276,16 +287,9 @@ def failure():
 url = 'https://www.baamboozle.com/games/create'
 
 
-
-if __name__ == '__main__':
-    app.run(debug=True, port=5001)
-
-import openai
-
-
-def generate_esl_quiz(vocab_words, api_key, max_tokens=250):
+def generate_esl_quiz(vocab_words, api_key, max_tokens=550):
     """
-    Function to generate an ESL quiz for 10-year-olds.
+    Function to generate an EASY ESL quiz for 10-year-olds.
 
     Parameters:
     - vocab_words: A list of vocabulary words to include in the quiz.
@@ -296,23 +300,135 @@ def generate_esl_quiz(vocab_words, api_key, max_tokens=250):
         return "Vocabulary list is empty."
 
     formatted_vocab = ', '.join(vocab_words)
-    prompt = f"Create a beginner ESL quiz about the following vocab words: {formatted_vocab}. " \
-             f"Create a gap fill with the words. Also create a short comprehension with some of the words. " \
-             f"It should be 1 page in total."
+    prompt = f"Create an EASY ESL quiz for ten year olds about the following vocab words: {formatted_vocab}. " \
+             f"Create TEN fill in the gap sentences with ten of the words. Make it easy. Also create a short comprehension with some of the words. " \
+             f"It should be 1 page in total. ONLY gap fill and comprehension. Dont give the answers" \
+             f"Above the fill in the blank questions should be ONLY BE THE TEN vocab words that the students can cross off after they answer each gap fill" \
+             f"Here is an example" \
+             '''VOCABULARY WORDS:
+
+Farm, Mountain, Path, River, Village, Cable Car, Exercise, Tree, Country, Story
+
+FILL IN THE GAP:
+
+1. The apple ________ is next to the village.
+
+2. I like to climb the _________ during summer vacation.
+
+3. A narrow ________ leads to the ancient castle.
+
+4. The ________ flows quietly under the wooden bridge.
+
+5. Many people in the _________ know each other well.
+
+6. I saw a spectacular view when I took the ________ to the top.
+
+7. I ________ every morning to keep myself fit.
+
+8. We enjoyed a picnic under the shade of a big ________.
+
+9. I live in a small ________ in Europe.
+
+10. Can you tell me a ________ before I go to bed?
+
+COMPREHENSION:
+
+Billy went to visit his Grandma who lives in a small village in the countryside. It was a tranquil place surrounded by mountains and a beautiful river that glistened under the sun. Every morning, Billy would exercise by running along a path that passed through a lush farm full of apple trees. One day, he decided to take an adventurous trip alone. Walking further along the path, he noticed a cable car station. Intrigued by this, Billy decided to take the cable car up the mountain, where he found a gorgeous waterfall. Overwhelmed by the extraordinary sight, Billy took back many stories to tell his friends in the city about his village adventure.
+
+Questions:
+
+1. Where does Billy's Grandma live?
+
+2. What was Billy's daily exercise routine?
+
+3. How did Billy go up the mountain?
+
+4. What did Billy find at the top of the mountain?
+
+5. Who did Billy want to share his adventure stories with?
+
+
+Process finished with exit code 0'''
 
     openai.api_key = api_key
 
     try:
-        response = openai.Completion.create(
-            model="gpt-4",  # Replace with the model you are using, if different.
-            prompt=prompt,
+        response = openai.ChatCompletion.create(
+            model="gpt-4",  # Specify the GPT-4 model
+            messages=[
+                {"role": "system", "content": "You are a skilled ESL teacher."},
+                {"role": "user", "content": prompt}
+            ],
             max_tokens=max_tokens
         )
-        return response.choices[0].text.strip()
+        return response['choices'][0]['message']['content']
     except Exception as e:
         return f"An error occurred: {e}"
-# Example usage:
-quiz_prompt = ['egg', 'ball', 'hat', 'apple', 'big', 'small']
-# my_api_key = "your-api-key-here"
-quiz = generate_esl_quiz(quiz_prompt, API_KEY)
-print(quiz)
+
+
+def create_a_word_document(text):
+    doc = Document()
+    doc.add_paragraph(text)
+    filename = 'word_doc.docx'
+    doc.save(filename)
+    print(f"Document saved as {filename}")
+
+
+
+send_from = E_NAME
+password = E_PASS  # If using Gmail, it's recommended to generate an app-specific password
+send_to = E_NAME
+subject = f'Quiz'
+body = ':)'
+# file_path = r'C:\Users\PC\Desktop\pythonProject\Bamboozle_ESL-game\word_doc.docx'
+# file_pATH = f'C:\\Users\PC\\Desktop\\pythonProject\Bamboozle_ESL-game\\'
+file_path = 'C:\\Users\\PC\\Desktop\\pythonProject\\Bamboozle_ESL-game\\word_doc.docx'
+
+
+def send_email_with_attachment(send_from, password, send_to, subject, body, file_path):
+    server = None
+    try:
+        # Set up the SMTP server
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(send_from, password)
+
+        # Create the email
+        msg = MIMEMultipart()
+        msg['From'] = send_from
+        msg['To'] = send_to
+        msg['Subject'] = subject
+
+        # Attach the body with the msg instance
+        msg.attach(MIMEText(body, 'plain'))
+
+        # Open the file to be sent
+        with open(file_path, "rb") as attachment:
+            part = MIMEBase('application', 'octet-stream')
+            part.set_payload(attachment.read())
+            encoders.encode_base64(part)
+            part.add_header('Content-Disposition', "attachment; filename= %s" % os.path.basename(file_path))
+            msg.attach(part)
+
+        # Send the email
+        server.send_message(msg)
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        if server:
+            server.quit()
+
+        # Attempt to delete the file
+        try:
+            print("Deleting the document...")
+            os.remove(file_path)
+            print(f"Document {file_path} deleted successfully.")
+        except Exception as e:
+            print(f"Error deleting file: {e}")
+
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5001)
+
+#figure out most appropriate logic for me
