@@ -21,6 +21,7 @@ EMAIL = os.getenv('EMAIL')
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
+
 class Driver:
     def __init__(self):
         chrome_options = Options()
