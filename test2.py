@@ -13,6 +13,7 @@ from time import sleep
 import db_1
 import openai
 from docx import Document
+import threading
 
 import smtplib
 from email.mime.multipart import MIMEMultipart
@@ -75,7 +76,7 @@ class Driver:
             print("Exception occurred while interacting with the element: ", e)
 
     #create game name and description
-    def create_game(self, title):
+    def create_game(self, title='Vocab :)'):
         try:
             title_box = WebDriverWait(self.driver, 10).until(
                 EC.presence_of_element_located((By.ID, 'one')))
@@ -114,6 +115,7 @@ class Driver:
 
             for vocab in vocabs:
                 if vocab:
+                    print(vocab)
                     self.questions_search_loop(vocab)
 
             close_game = "//a[@class='btn btn-defaulted']"
@@ -205,76 +207,83 @@ class Driver:
         except WebDriverException as e:
             print("Exception occurred while closing the popup: ", e)
 
+    def create_bamboozle(self, url, EMAIL, PASSWORD, title, vocabs):
+        self.sign_in(url, EMAIL, PASSWORD)
+        self.create_game(title)
+        self.create_game_part_two(vocabs)
+        session.clear()
+
+    def create_quiz(self, vocab_words, API_KEY, max_tokens=550):
+        response = generate_esl_quiz(vocab_words, API_KEY, max_tokens=550)
+        create_a_word_document(response)
+        send_email_with_attachment()
+
+
     def close(self):
         self.driver.quit()
 
 
 @app.route('/', methods=['GET', 'POST'])
 def book_unit():
+    # title = ''
     if request.method == 'POST':
-        # Check for vocabulary list submission
-        if 'vocabList' in request.form:
-            vocab_list = request.form['vocabList']
-            print(vocab_list)
-            response = generate_esl_quiz(vocab_list, API_KEY, max_tokens=550)
-            create_a_word_document(response)
-            send_email_with_attachment(send_from, password, send_to, subject, body, file_path)
-            # Process the vocabulary list
-            # ... (your code to handle vocab list)
-
-            # Store the processed vocab list in the session temporarily
-            session['processed_vocabs'] = vocab_list
-
-            # Re-render the same page without redirecting
-            return render_template('book_unit.html',
-                                   message="Vocabulary list processed. Please submit the book form to continue.")
-
-        # Check for book form submission
-        if 'bookName' in request.form and 'unitNumber' in request.form:
+        if request.form['action'] == 'bamboozle':
             try:
-                book_name = request.form['bookName']
-                unit_number = request.form['unitNumber']
-                # query db
-                title, vocabs = db_1.get_vocab(book_name, unit_number)
+                if 'title' in session:
+                    title = session['title']
+                    # seperate split so vocab stays in box after creating game to be used again if needed
+                    vocab_words = request.form.get('vocab')
+                    vocabs = vocab_words.split(', ')
 
-                # # Here, use the processed vocabs from the session if available
-                processed_vocabs = session.get('processed_vocabs', vocabs)
-                print(title, vocabs)
-                # Store retrieved data in session.
-                session['title'] = title
-                session['vocabs'] = processed_vocabs
-
-                # Clear the processed vocabs from the session
-                session.pop('processed_vocabs', None)
-
-                # Redirect to the page to show the populated vocabulary form.
-                return redirect(url_for('go'))
+                    local_driver = Driver()
+                    thread = threading.Thread(target=local_driver.create_bamboozle,
+                                              args=(url, EMAIL, PASSWORD, title, vocabs))
+                    thread.start()
+                    return render_template('book_unit.html', vocab=vocab_words)
+                    # local_driver.create_bamboozle(url, EMAIL, PASSWORD, title, vocabs)
             except KeyError:
                 # Render the book_unit page with an error if the form fields are not found.
-                return render_template('book_unit.html', error="Please fill in all the fields.")
+                return render_template('book_unit.html', vocab=vocab_words)
+
+        elif request.form['action'] == 'reviewQuiz':
+            try:
+                vocabs = request.form.get('vocab')
+                local_driver = Driver()
+                quiz_thread = threading.Thread(target=local_driver.create_quiz, args=(vocabs, API_KEY, 550))
+                quiz_thread.start()
+
+                return render_template('book_unit.html', vocab=vocabs)
+
+            except KeyError:
+                return render_template('book_unit.html', vocab=vocabs)
+
+
+
+
+        elif request.form['action'] == 'ShowVocab':
+            try:
+                book = request.form['bookName']
+                unit = request.form['unitNumber']
+                title = book + ' Unit ' + unit
+                session['title'] = title
+                book_name, new_vocab = db_1.get_vocab(book, unit)
+
+                # Append new vocab to the temporary vocab list
+                existing_vocab = request.form.get('vocab', '')
+
+                # Combine existing and new vocab
+                combined_vocab = existing_vocab + ', ' + ', '.join(new_vocab) if existing_vocab else ', '.join(new_vocab)
+
+                return render_template('book_unit.html', vocab=combined_vocab)
+
+            except KeyError:
+                return render_template('book_unit.html')
+
+        # Render the page for a GET request or if no form data is submitted
+        return render_template('book_unit.html')
 
     # Render the page for a GET request or if no form data is submitted
     return render_template('book_unit.html')
-
-
-@app.route('/go')
-def go():
-    if 'title' in session and 'vocabs' in session:
-        title = session['new_title']
-        vocabs = session['new_vocabs']
-        # load bot
-        local_driver = Driver()
-        try:
-            local_driver.sign_in(url, EMAIL, PASSWORD)
-            local_driver.create_game(title)
-            local_driver.create_game_part_two(vocabs)
-            return redirect(url_for('success_page'))
-        except Exception as e:
-            print(e)
-            # Handle login failure
-        return render_template('success.html')
-    else:
-        return redirect(url_for('book_unit'))
 
 @app.route('/success', methods=['GET'])
 def success_page():
@@ -302,7 +311,7 @@ def generate_esl_quiz(vocab_words, api_key, max_tokens=550):
     formatted_vocab = ', '.join(vocab_words)
     prompt = f"Create an EASY ESL quiz for ten year olds about the following vocab words: {formatted_vocab}. " \
              f"Create TEN fill in the gap sentences with ten of the words. Make it easy. Also create a short comprehension with some of the words. " \
-             f"It should be 1 page in total. ONLY gap fill and comprehension. Dont give the answers" \
+             f"It should be 1 page in total. ONLY gap fill and an easy comprehension. Dont give the answers" \
              f"Above the fill in the blank questions should be ONLY BE THE TEN vocab words that the students can cross off after they answer each gap fill" \
              f"Here is an example" \
              '''VOCABULARY WORDS:
@@ -333,7 +342,7 @@ FILL IN THE GAP:
 
 COMPREHENSION:
 
-Billy went to visit his Grandma who lives in a small village in the countryside. It was a tranquil place surrounded by mountains and a beautiful river that glistened under the sun. Every morning, Billy would exercise by running along a path that passed through a lush farm full of apple trees. One day, he decided to take an adventurous trip alone. Walking further along the path, he noticed a cable car station. Intrigued by this, Billy decided to take the cable car up the mountain, where he found a gorgeous waterfall. Overwhelmed by the extraordinary sight, Billy took back many stories to tell his friends in the city about his village adventure.
+Billy went to visit his Grandma who lives in a small village in the countryside. It has mountains and a beautiful river. Every morning, Billy would exercise by running along a path that passed through apple trees. One day, he decided to take an adventurous trip alone. Walking along the path, he saw a cable car station. Billy took the cable car up the mountain, where he found a waterfall. Billy took back many stories to tell his friends in the city about his village adventure.
 
 Questions:
 
@@ -373,19 +382,13 @@ def create_a_word_document(text):
     doc.save(filename)
     print(f"Document saved as {filename}")
 
-
-
-send_from = E_NAME
-password = E_PASS  # If using Gmail, it's recommended to generate an app-specific password
-send_to = E_NAME
-subject = f'Quiz'
-body = ':)'
-# file_path = r'C:\Users\PC\Desktop\pythonProject\Bamboozle_ESL-game\word_doc.docx'
-# file_pATH = f'C:\\Users\PC\\Desktop\\pythonProject\Bamboozle_ESL-game\\'
-file_path = 'C:\\Users\\PC\\Desktop\\pythonProject\\Bamboozle_ESL-game\\word_doc.docx'
-
-
-def send_email_with_attachment(send_from, password, send_to, subject, body, file_path):
+def send_email_with_attachment():
+    send_from = E_NAME
+    password = E_PASS
+    send_to = E_NAME
+    subject = f'Quiz'
+    body = ':)'
+    file_path = 'C:\\Users\\PC\\Desktop\\pythonProject\\Bamboozle_ESL-game\\word_doc.docx'
     server = None
     try:
         # Set up the SMTP server
@@ -429,6 +432,8 @@ def send_email_with_attachment(send_from, password, send_to, subject, body, file
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    app.run(debug=True, port=5001, use_reloader=False)
 
-#figure out most appropriate logic for me
+
+
+#works :) no errors created for bam or quiz. still works once input by user is correct
