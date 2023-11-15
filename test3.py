@@ -225,6 +225,7 @@ class Driver:
 
 @app.route('/', methods=['GET', 'POST'])
 def book_unit():
+    books, units = db_1.some_function()
     if request.method == 'POST':
         if request.form['action'] == 'bamboozle':
             vocab_words = request.form.get('vocab')
@@ -232,24 +233,26 @@ def book_unit():
 
             title = session['title']
             if not vocab_words:
-                return render_template('book_unit.html', error="Vocabulary is required.")
+                return render_template('book_unit.html', error="Vocabulary is required.", books=books, units=units)
             else:
                 local_driver = Driver()
+                print(vocabs)
                 thread = threading.Thread(target=local_driver.create_bamboozle,
                                           args=(url, EMAIL, PASSWORD, title, vocabs))
                 # thread.start()
-                return render_template('book_unit.html', vocab=vocabs)
+                return render_template('book_unit.html', vocab=vocab_words, books=books, units=units)
 
         elif request.form['action'] == 'reviewQuiz':
             vocabs = request.form.get('vocab')
             if not vocabs:
-                return render_template('book_unit.html', error="Vocabulary is required.")
+                return render_template('book_unit.html', error="Vocabulary is required.", books=books, units=units)
 
+            print(vocabs)
             local_driver = Driver()
             quiz_thread = threading.Thread(target=local_driver.create_quiz, args=(vocabs, API_KEY, 550))
             # quiz_thread.start()
 
-            return render_template('book_unit.html', vocab=vocabs)
+            return render_template('book_unit.html', vocab=vocabs, books=books, units=units)
 
 
 
@@ -269,7 +272,7 @@ def book_unit():
                 # Combine existing and new vocab
                 combined_vocab = existing_vocab + ', ' + ', '.join(new_vocab) if existing_vocab else ', '.join(new_vocab)
 
-                return render_template('book_unit.html', vocab=combined_vocab)
+                return render_template('book_unit.html', vocab=combined_vocab, books=books, units=units)
 
             except KeyError:
                 return render_template('book_unit.html')
@@ -278,7 +281,8 @@ def book_unit():
         return render_template('book_unit.html')
 
     # Render the page for a GET request or if no form data is submitted
-    return render_template('book_unit.html')
+    return render_template('book_unit.html', book_to_units=book_to_units)
+
 
 @app.route('/success', methods=['GET'])
 def success_page():
