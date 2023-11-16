@@ -225,38 +225,40 @@ class Driver:
 
 @app.route('/', methods=['GET', 'POST'])
 def book_unit():
-    books, units = db_1.some_function()
+    book_to_units = db_1.some_function()
+    books = db_1.get_all_books()
+    books.sort()
     if request.method == 'POST':
+        selected_book = request.form.get('bookName')
+        selected_unit = request.form.get('unitNumber')
+        session['selected_book'] = selected_book
+        session['selected_unit'] = selected_unit
+
         if request.form['action'] == 'bamboozle':
             vocab_words = request.form.get('vocab')
-            vocabs = vocab_words.split(', ')
+            vocabs = vocab_words.split(', ') if vocab_words else []
 
-            title = session['title']
-            if not vocab_words:
-                return render_template('book_unit.html', error="Vocabulary is required.", books=books, units=units)
-            else:
-                local_driver = Driver()
-                print(vocabs)
-                thread = threading.Thread(target=local_driver.create_bamboozle,
-                                          args=(url, EMAIL, PASSWORD, title, vocabs))
-                # thread.start()
-                return render_template('book_unit.html', vocab=vocab_words, books=books, units=units)
+            title = session.get('title', '')
+            if not vocabs:
+                return render_template('book_unit.html', error="Vocabulary is required.", books=books, book_to_units=book_to_units, selected_book=selected_book, selected_unit=selected_unit )
+
+            local_driver = Driver()
+            print(vocabs)
+            thread = threading.Thread(target=local_driver.create_bamboozle,
+                                      args=(url, EMAIL, PASSWORD, title, vocabs))
+            thread.start()
+            return render_template('book_unit.html', vocab=vocab_words, books=books, book_to_units=book_to_units, selected_book=selected_book, selected_unit=selected_unit )
 
         elif request.form['action'] == 'reviewQuiz':
             vocabs = request.form.get('vocab')
             if not vocabs:
-                return render_template('book_unit.html', error="Vocabulary is required.", books=books, units=units)
+                return render_template('book_unit.html', error="Vocabulary is required.", books=books, book_to_units=book_to_units, selected_book=selected_book, selected_unit=selected_unit )
 
-            print(vocabs)
             local_driver = Driver()
             quiz_thread = threading.Thread(target=local_driver.create_quiz, args=(vocabs, API_KEY, 550))
-            # quiz_thread.start()
+            quiz_thread.start()
 
-            return render_template('book_unit.html', vocab=vocabs, books=books, units=units)
-
-
-
-
+            return render_template('book_unit.html', vocab=vocabs, books=books, book_to_units=book_to_units, selected_book=selected_book, selected_unit=selected_unit )
 
         elif request.form['action'] == 'ShowVocab':
             try:
@@ -272,7 +274,7 @@ def book_unit():
                 # Combine existing and new vocab
                 combined_vocab = existing_vocab + ', ' + ', '.join(new_vocab) if existing_vocab else ', '.join(new_vocab)
 
-                return render_template('book_unit.html', vocab=combined_vocab, books=books, units=units)
+                return render_template('book_unit.html', vocab=combined_vocab, books=books, book_to_units=book_to_units, selected_book=selected_book, selected_unit=selected_unit )
 
             except KeyError:
                 return render_template('book_unit.html')
@@ -281,7 +283,9 @@ def book_unit():
         return render_template('book_unit.html')
 
     # Render the page for a GET request or if no form data is submitted
-    return render_template('book_unit.html', book_to_units=book_to_units)
+    selected_book = session.get('selected_book')
+    selected_unit = session.get('selected_unit')
+    return render_template('book_unit.html', books=books, book_to_units=book_to_units, selected_book=selected_book, selected_unit=selected_unit )
 
 
 @app.route('/success', methods=['GET'])
