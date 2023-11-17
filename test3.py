@@ -14,6 +14,7 @@ import db_1
 import openai
 from docx import Document
 import threading
+from word_search_generator import WordSearch
 
 import smtplib
 from email.mime.multipart import MIMEMultipart
@@ -213,11 +214,14 @@ class Driver:
         self.create_game_part_two(vocabs)
         session.clear()
 
-    def create_quiz(self, vocab_words, API_KEY, max_tokens=550):
-        response = generate_esl_quiz(vocab_words, API_KEY, max_tokens=550)
+    def create_quiz(self, API_KEY, prompt):
+        response = generate_esl_quiz(API_KEY, prompt)
         create_a_word_document(response)
-        send_email_with_attachment()
+        send_email_with_attachment('C:\\Users\\PC\\Desktop\\pythonProject\\Bamboozle_ESL-game\\word_doc.docx')
 
+    def create_word_search2(self, vocab):
+        puzzle = create_word_search(vocab)
+        send_email_with_attachment(puzzle)
 
     def close(self):
         self.driver.quit()
@@ -251,11 +255,16 @@ def book_unit():
 
         elif request.form['action'] == 'reviewQuiz':
             vocabs = request.form.get('vocab')
+            #vocab is string
             if not vocabs:
                 return render_template('book_unit.html', error="Vocabulary is required.", books=books, book_to_units=book_to_units, selected_book=selected_book, selected_unit=selected_unit )
 
+            prompt = create_prompt(vocabs)
+            print(prompt)
+
+
             local_driver = Driver()
-            quiz_thread = threading.Thread(target=local_driver.create_quiz, args=(vocabs, API_KEY, 550))
+            quiz_thread = threading.Thread(target=local_driver.create_quiz, args=(API_KEY, prompt))
             quiz_thread.start()
 
             return render_template('book_unit.html', vocab=vocabs, books=books, book_to_units=book_to_units, selected_book=selected_book, selected_unit=selected_unit )
@@ -279,8 +288,18 @@ def book_unit():
             except KeyError:
                 return render_template('book_unit.html')
 
-        # Render the page for a GET request or if no form data is submitted
-        return render_template('book_unit.html')
+
+
+
+        elif request.form['action'] == "wordSearch":
+            vocabs = request.form.get('vocab')
+
+            local_driver = Driver()
+            word_search_thread = threading.Thread(target=local_driver.create_word_search2, args=(vocabs,))
+            word_search_thread.start()
+
+            return render_template('book_unit.html', vocab=vocabs, books=books, book_to_units=book_to_units,
+                                   selected_book=selected_book, selected_unit=selected_unit)
 
     # Render the page for a GET request or if no form data is submitted
     selected_book = session.get('selected_book')
@@ -298,69 +317,47 @@ def failure():
 
 url = 'https://www.baamboozle.com/games/create'
 
+def create_prompt(vocabs):
+    return f"""Hello, I need your assistance to create an EASY and I really mean Easy ESL quiz for ten-year-old students using the following vocabulary words: {vocabs}. The quiz should be straightforward, engaging, and designed for beginners. Here's the format I'd like you to follow:
 
-def generate_esl_quiz(vocab_words, api_key, max_tokens=550):
-    """
-    Function to generate an EASY ESL quiz for 10-year-olds.
+1. **Fill in the Blanks:** 
+   - Develop TEN sentences with a blank space for a word from the vocabulary list. 
+   - Each sentence should use a different vocabulary word in a context that helps infer its meaning.
+   - Ensure the sentences are simple, age-appropriate, and provide enough context clues to guess the missing word.
+   - List the vocabulary words at the top of this section for easy reference.
 
-    Parameters:
-    - vocab_words: A list of vocabulary words to include in the quiz.
-    - api_key: API key for OpenAI.
-    - max_tokens: The maximum length of the generated quiz.
-    """
-    if not vocab_words:
-        return "Vocabulary list is empty."
+2. **Reading Comprehension:**
+   - Write a short, engaging story appropriate for the age group, incorporating some of the vocabulary words.
+   - After the story, include FIVE comprehension questions that test the students' understanding of the text and how the vocabulary words are used within it.
+   - The story and questions should be simple enough for students at this level to understand without external help.
 
-    formatted_vocab = ', '.join(vocab_words)
-    prompt = f"Create an EASY ESL quiz for ten year olds about the following vocab words: {formatted_vocab}. " \
-             f"Create TEN fill in the gap sentences with ten of the words. Make it easy. Also create a short comprehension with some of the words. " \
-             f"It should be 1 page in total. ONLY gap fill and an easy comprehension. Dont give the answers" \
-             f"Above the fill in the blank questions should be ONLY BE THE TEN vocab words that the students can cross off after they answer each gap fill" \
-             f"Here is an example" \
-             '''VOCABULARY WORDS:
+Please do not include the answers in the quiz. Aim to keep the total length of the quiz to about one page. For clarity, here's a structure outline for your reference:
 
-Farm, Mountain, Path, River, Village, Cable Car, Exercise, Tree, Country, Story
+**Vocabulary Words:** 
+{vocabs}
 
-FILL IN THE GAP:
+**Fill in the Blanks:**
+1. Sentence with a blank using vocab1.
+2. Sentence with a blank using vocab2.
+... and so on.
 
-1. The apple ________ is next to the village.
+**Reading Comprehension:**
+[Short story incorporating some of the vocabulary words]
 
-2. I like to climb the _________ during summer vacation.
-
-3. A narrow ________ leads to the ancient castle.
-
-4. The ________ flows quietly under the wooden bridge.
-
-5. Many people in the _________ know each other well.
-
-6. I saw a spectacular view when I took the ________ to the top.
-
-7. I ________ every morning to keep myself fit.
-
-8. We enjoyed a picnic under the shade of a big ________.
-
-9. I live in a small ________ in Europe.
-
-10. Can you tell me a ________ before I go to bed?
-
-COMPREHENSION:
-
-Billy went to visit his Grandma who lives in a small village in the countryside. It has mountains and a beautiful river. Every morning, Billy would exercise by running along a path that passed through apple trees. One day, he decided to take an adventurous trip alone. Walking along the path, he saw a cable car station. Billy took the cable car up the mountain, where he found a waterfall. Billy took back many stories to tell his friends in the city about his village adventure.
-
-Questions:
-
-1. Where does Billy's Grandma live?
-
-2. What was Billy's daily exercise routine?
-
-3. How did Billy go up the mountain?
-
-4. What did Billy find at the top of the mountain?
-
-5. Who did Billy want to share his adventure stories with?
+**Comprehension Questions:**
+1. Question about the story.
+2. Another question about the story.
+... and so on."""
 
 
-Process finished with exit code 0'''
+
+
+
+def generate_esl_quiz(api_key, prompt, max_tokens=550):
+    # if not vocab_words:
+    #     return "Vocabulary list is empty."
+
+    prompt = prompt
 
     openai.api_key = api_key
 
@@ -378,6 +375,13 @@ Process finished with exit code 0'''
         return f"An error occurred: {e}"
 
 
+def create_word_search(vocab):
+    puzzle = WordSearch(vocab)
+    location = puzzle.save(path=r'C:\Users\PC\Desktop\pythonProject\Bamboozle_ESL-game\word_search.pdf')
+
+    return location
+
+
 def create_a_word_document(text):
     doc = Document()
     doc.add_paragraph(text)
@@ -385,13 +389,14 @@ def create_a_word_document(text):
     doc.save(filename)
     print(f"Document saved as {filename}")
 
-def send_email_with_attachment():
+def send_email_with_attachment(file_path):
     send_from = E_NAME
     password = E_PASS
     send_to = E_NAME
     subject = f'Quiz'
     body = ':)'
-    file_path = 'C:\\Users\\PC\\Desktop\\pythonProject\\Bamboozle_ESL-game\\word_doc.docx'
+    # file_path = 'C:\\Users\\PC\\Desktop\\pythonProject\\Bamboozle_ESL-game\\word_doc.docx'
+    file_path = file_path
     server = None
     try:
         # Set up the SMTP server
@@ -439,4 +444,4 @@ if __name__ == '__main__':
 
 
 
-#should work. Errors for making game and quiz included. Need to make errors for searching DB
+#you were on the correct lines of creating a function to incorporate the f string. Maybe another option apart from f sting is better suited
