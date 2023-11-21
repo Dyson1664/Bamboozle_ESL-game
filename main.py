@@ -82,7 +82,7 @@ class Driver:
             sleep(5)
         except WebDriverException as e:
             print("Exception occurred while interacting with the element: ", e)
-
+#create game
     def create_game_part_two(self, vocabs):
         try:
             image_library_button_xpath = "//div[@id='question-form']//button[@type='button']"
