@@ -10,9 +10,10 @@ from webdriver_manager.chrome import ChromeDriverManager
 from dotenv import load_dotenv
 import os
 from time import sleep
-import db_1
+import db_5
 import openai
 from docx import Document
+from word_search_generator import WordSearch
 import threading
 
 import smtplib
@@ -39,7 +40,7 @@ class Driver:
         self.driver = webdriver.Chrome(service=service, options=chrome_options)
 
     def vocabs_to_enter(self, name, unit):
-        title, vocabs = db_1.get_vocab(name, unit)
+        title, vocabs = db_5.get_vocab(name, unit)
         return title, vocabs
     def enter_vocab(self, title, vocabs):
         self.driver.get('http://127.0.0.1:5001/vocab')
@@ -218,6 +219,9 @@ class Driver:
         create_a_word_document(response)
         send_email_with_attachment()
 
+    def create_word_search2(self, vocab):
+        puzzle = create_word_search(vocab)
+        send_email_with_attachment(puzzle)
 
     def close(self):
         self.driver.quit()
@@ -225,9 +229,14 @@ class Driver:
 # main webpage
 @app.route('/', methods=['GET', 'POST'])
 def book_unit():
-    book_to_units = db_1.some_function()
-    books = db_1.get_all_books()
+    book_to_units = db_5.some_function()
+    books = db_5.get_all_books()
     books.sort()
+    kg_vocab = db_5.make_kg_dict()
+    selected_book = session.get('selected_book', '')
+    selected_unit = session.get('selected_unit', '')
+    combined_vocab = ''
+
     if request.method == 'POST':
         selected_book = request.form.get('bookName')
         selected_unit = request.form.get('unitNumber')
@@ -240,53 +249,72 @@ def book_unit():
 
             title = session.get('title', '')
             if not vocabs:
-                return render_template('book_unit.html', error="Vocabulary is required.", books=books, book_to_units=book_to_units, selected_book=selected_book, selected_unit=selected_unit )
+                return render_template('book_unit.html', error="Vocabulary is required.", books=books, book_to_units=book_to_units, selected_book=selected_book, selected_unit=selected_unit)
 
             local_driver = Driver()
             print(vocabs)
             thread = threading.Thread(target=local_driver.create_bamboozle,
                                       args=(url, EMAIL, PASSWORD, title, vocabs))
             thread.start()
-            return render_template('book_unit.html', vocab=vocab_words, books=books, book_to_units=book_to_units, selected_book=selected_book, selected_unit=selected_unit )
+            return render_template('book_unit.html', vocab=vocab_words, books=books, book_to_units=book_to_units, kg_vocab=kg_vocab, selected_book=selected_book, selected_unit=selected_unit)
 
         elif request.form['action'] == 'reviewQuiz':
             vocabs = request.form.get('vocab')
             if not vocabs:
-                return render_template('book_unit.html', error="Vocabulary is required.", books=books, book_to_units=book_to_units, selected_book=selected_book, selected_unit=selected_unit )
+                return render_template('book_unit.html', error="Vocabulary is required.", books=books, kg_vocab=kg_vocab, book_to_units=book_to_units, selected_book=selected_book, selected_unit=selected_unit)
 
             local_driver = Driver()
             quiz_thread = threading.Thread(target=local_driver.create_quiz, args=(vocabs, API_KEY, 550))
             quiz_thread.start()
 
-            return render_template('book_unit.html', vocab=vocabs, books=books, book_to_units=book_to_units, selected_book=selected_book, selected_unit=selected_unit )
+            return render_template('book_unit.html', vocab=vocabs, books=books, book_to_units=book_to_units, kg_vocab=kg_vocab, selected_book=selected_book, selected_unit=selected_unit)
 
         elif request.form['action'] == 'ShowVocab':
-            try:
-                book = request.form['bookName']
-                unit = request.form['unitNumber']
-                title = book + ' Unit ' + unit
-                session['title'] = title
-                book_name, new_vocab = db_1.get_vocab(book, unit)
 
-                # Append new vocab to the temporary vocab list
-                existing_vocab = request.form.get('vocab', '')
+            book = request.form.get('bookName')
+            unit = request.form.get('unitNumber')
+            kg_category = request.form.get('kgTitle')
+            existing_vocab = request.form.get('vocab', '')
+            new_combined_vocab = []
 
-                # Combine existing and new vocab
-                combined_vocab = existing_vocab + ', ' + ', '.join(new_vocab) if existing_vocab else ', '.join(new_vocab)
+            # Fetch vocab for selected book and unit
+            if book != 'None':
+                _, new_vocab = db_5.get_vocab(book, unit)
 
-                return render_template('book_unit.html', vocab=combined_vocab, books=books, book_to_units=book_to_units, selected_book=selected_book, selected_unit=selected_unit )
+                new_combined_vocab.extend(new_vocab)
 
-            except KeyError:
-                return render_template('book_unit.html')
+            # Fetch vocab for selected kindergarten category
 
-        # Render the page for a GET request or if no form data is submitted
-        return render_template('book_unit.html')
+            if kg_category != 'NONE':
+                kg_vocab_list = kg_vocab.get(kg_category, [])
 
-    # Render the page for a GET request or if no form data is submitted
-    selected_book = session.get('selected_book')
-    selected_unit = session.get('selected_unit')
-    return render_template('book_unit.html', books=books, book_to_units=book_to_units, selected_book=selected_book, selected_unit=selected_unit )
+                new_combined_vocab.extend(kg_vocab_list)
 
+            # Append new vocab to existing vocab
+
+            if existing_vocab:
+
+                combined_vocab = ', '.join(filter(None, [existing_vocab, ', '.join(new_combined_vocab)]))
+
+            else:
+
+                combined_vocab = ', '.join(new_combined_vocab)
+
+
+            return render_template('book_unit.html', vocab=combined_vocab, books=books, book_to_units=book_to_units, kg_vocab=kg_vocab, selected_book=selected_book, selected_unit=selected_unit)
+
+
+        elif request.form['action'] == "wordSearch":
+            vocabs = request.form.get('vocab')
+
+            local_driver = Driver()
+            word_search_thread = threading.Thread(target=local_driver.create_word_search2, args=(vocabs,))
+            word_search_thread.start()
+
+            return render_template('book_unit.html', vocab=vocabs, books=books, kg_vocab=kg_vocab, book_to_units=book_to_units,
+                                   selected_book=selected_book, selected_unit=selected_unit)
+
+    return render_template('book_unit.html', vocab=combined_vocab, books=books, book_to_units=book_to_units, kg_vocab=kg_vocab, selected_book=selected_book, selected_unit=selected_unit)
 
 @app.route('/success', methods=['GET'])
 def success_page():
@@ -299,68 +327,47 @@ def failure():
 url = 'https://www.baamboozle.com/games/create'
 
 
-def generate_esl_quiz(vocab_words, api_key, max_tokens=550):
-    """
-    Function to generate an EASY ESL quiz for 10-year-olds.
+def create_prompt(vocabs):
+    return f"""Hello, I need your assistance to create an EASY and I really mean Easy ESL quiz for ten-year-old students using the following vocabulary words: {vocabs}. The quiz should be straightforward, engaging, and designed for beginners. Here's the format I'd like you to follow:
 
-    Parameters:
-    - vocab_words: A list of vocabulary words to include in the quiz.
-    - api_key: API key for OpenAI.
-    - max_tokens: The maximum length of the generated quiz.
-    """
-    if not vocab_words:
-        return "Vocabulary list is empty."
+1. **Fill in the Blanks:** 
+   - Develop TEN sentences with a blank space for a word from the vocabulary list. 
+   - Each sentence should use a different vocabulary word in a context that helps infer its meaning.
+   - Ensure the sentences are simple, age-appropriate, and provide enough context clues to guess the missing word.
+   - List the vocabulary words at the top of this section for easy reference.
 
-    formatted_vocab = ', '.join(vocab_words)
-    prompt = f"Create an EASY ESL quiz for ten year olds about the following vocab words: {formatted_vocab}. " \
-             f"Create TEN fill in the gap sentences with ten of the words. Make it easy. Also create a short comprehension with some of the words. " \
-             f"It should be 1 page in total. ONLY gap fill and an easy comprehension. Dont give the answers" \
-             f"Above the fill in the blank questions should be ONLY BE THE TEN vocab words that the students can cross off after they answer each gap fill" \
-             f"Here is an example" \
-             '''VOCABULARY WORDS:
+2. **Reading Comprehension:**
+   - Write a short, engaging story appropriate for the age group, incorporating some of the vocabulary words.
+   - After the story, include FIVE comprehension questions that test the students' understanding of the text and how the vocabulary words are used within it.
+   - The story and questions should be simple enough for students at this level to understand without external help.
 
-Farm, Mountain, Path, River, Village, Cable Car, Exercise, Tree, Country, Story
+Please do not include the answers in the quiz. Aim to keep the total length of the quiz to about one page. For clarity, here's a structure outline for your reference:
 
-FILL IN THE GAP:
+**Vocabulary Words:** 
+{vocabs}
 
-1. The apple ________ is next to the village.
+**Fill in the Blanks:**
+1. Sentence with a blank using vocab1.
+2. Sentence with a blank using vocab2.
+... and so on.
 
-2. I like to climb the _________ during summer vacation.
+**Reading Comprehension:**
+[Short story incorporating some of the vocabulary words]
 
-3. A narrow ________ leads to the ancient castle.
-
-4. The ________ flows quietly under the wooden bridge.
-
-5. Many people in the _________ know each other well.
-
-6. I saw a spectacular view when I took the ________ to the top.
-
-7. I ________ every morning to keep myself fit.
-
-8. We enjoyed a picnic under the shade of a big ________.
-
-9. I live in a small ________ in Europe.
-
-10. Can you tell me a ________ before I go to bed?
-
-COMPREHENSION:
-
-Billy went to visit his Grandma who lives in a small village in the countryside. It has mountains and a beautiful river. Every morning, Billy would exercise by running along a path that passed through apple trees. One day, he decided to take an adventurous trip alone. Walking along the path, he saw a cable car station. Billy took the cable car up the mountain, where he found a waterfall. Billy took back many stories to tell his friends in the city about his village adventure.
-
-Questions:
-
-1. Where does Billy's Grandma live?
-
-2. What was Billy's daily exercise routine?
-
-3. How did Billy go up the mountain?
-
-4. What did Billy find at the top of the mountain?
-
-5. Who did Billy want to share his adventure stories with?
+**Comprehension Questions:**
+1. Question about the story.
+2. Another question about the story.
+... and so on."""
 
 
-Process finished with exit code 0'''
+
+
+
+def generate_esl_quiz(api_key, prompt, max_tokens=550):
+    # if not vocab_words:
+    #     return "Vocabulary list is empty."
+
+    prompt = prompt
 
     openai.api_key = api_key
 
@@ -378,6 +385,13 @@ Process finished with exit code 0'''
         return f"An error occurred: {e}"
 
 
+def create_word_search(vocab):
+    puzzle = WordSearch(vocab)
+    location = puzzle.save(path=r'C:\Users\PC\Desktop\pythonProject\Bamboozle_ESL-game\word_search.pdf')
+
+    return location
+
+
 def create_a_word_document(text):
     doc = Document()
     doc.add_paragraph(text)
@@ -385,13 +399,14 @@ def create_a_word_document(text):
     doc.save(filename)
     print(f"Document saved as {filename}")
 
-def send_email_with_attachment():
+def send_email_with_attachment(file_path):
     send_from = E_NAME
     password = E_PASS
     send_to = E_NAME
     subject = f'Quiz'
     body = ':)'
-    file_path = 'C:\\Users\\PC\\Desktop\\pythonProject\\Bamboozle_ESL-game\\word_doc.docx'
+    # file_path = 'C:\\Users\\PC\\Desktop\\pythonProject\\Bamboozle_ESL-game\\word_doc.docx'
+    file_path = file_path
     server = None
     try:
         # Set up the SMTP server
@@ -432,6 +447,7 @@ def send_email_with_attachment():
             print(f"Document {file_path} deleted successfully.")
         except Exception as e:
             print(f"Error deleting file: {e}")
+
 
 
 if __name__ == '__main__':
