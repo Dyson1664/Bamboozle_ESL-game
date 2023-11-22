@@ -440,3 +440,5 @@ if __name__ == '__main__':
 
 
 #should work. Errors for making game and quiz included. Need to make errors for searching DB
+#need to pull then edit changes
+#need to clean it up
