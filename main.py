@@ -14,7 +14,7 @@ from time import sleep
 import db_1
 
 load_dotenv()
-
+#from .env file
 PASSWORD = os.getenv('PASSWORD')
 EMAIL = os.getenv('EMAIL')
 
