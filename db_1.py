@@ -309,3 +309,5 @@ if __name__ == '__main__':
     # insert_vocab(vocab_entries)  # Insert initial vocabulary entries
     # remove_duplicates()  # Optionally remove duplicates if needed
     get_vocab('Look2', 6)
+
+#not needed
