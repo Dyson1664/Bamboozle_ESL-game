@@ -10,6 +10,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 from dotenv import load_dotenv
 import os
 from time import sleep
+from sqlite3 import DatabaseError
+
 import db_5
 import openai
 from docx import Document
@@ -58,8 +60,6 @@ class Driver:
         except WebDriverException as e:
             print("Exception occurred while interacting with the element: ", e)
 
-
-
     def sign_in(self, url, email, password):
         self.driver.get(url)
         try:
@@ -77,10 +77,12 @@ class Driver:
             print("Exception occurred while interacting with the element: ", e)
 
     #create game name and description
-    def create_game(self, title='Vocab :)'):
+    def create_game(self, title):
         try:
+            print(title)
             title_box = WebDriverWait(self.driver, 10).until(
                 EC.presence_of_element_located((By.ID, 'one')))
+            title_box.clear()
             title_box.send_keys(title)
 
             description_box = WebDriverWait(self.driver, 10).until(
@@ -116,7 +118,6 @@ class Driver:
 
             for vocab in vocabs:
                 if vocab:
-                    print(vocab)
                     self.questions_search_loop(vocab)
 
             close_game = "//a[@class='btn btn-defaulted']"
@@ -154,7 +155,6 @@ class Driver:
         image_library_button.click()
         # is it needed?
         sleep(3)
-        # need to add something here to try again if time runs out
         try:
             first_image = WebDriverWait(self.driver, 15).until(
                 EC.element_to_be_clickable(
@@ -214,10 +214,12 @@ class Driver:
         self.create_game_part_two(vocabs)
         session.clear()
 
-    def create_quiz(self, vocab_words, API_KEY, max_tokens=550):
-        response = generate_esl_quiz(vocab_words, API_KEY, max_tokens=550)
+    def create_quiz(self, vocab_words, API_KEY):
+        prompt = create_prompt(vocab_words)
+        response = generate_esl_quiz(API_KEY, prompt, max_tokens=550)
         create_a_word_document(response)
-        send_email_with_attachment()
+        send_email_with_attachment(r"C:\Users\PC\Desktop\work_webpage\Bamboozle_ESL-game\word_doc.docx")
+
 
     def create_word_search2(self, vocab):
         puzzle = create_word_search(vocab)
@@ -229,13 +231,15 @@ class Driver:
 # main webpage
 @app.route('/', methods=['GET', 'POST'])
 def book_unit():
-    book_to_units = db_5.some_function()
-    books = db_5.get_all_books()
-    books.sort()
-    kg_vocab = db_5.make_kg_dict()
-    selected_book = session.get('selected_book', '')
-    selected_unit = session.get('selected_unit', '')
-    combined_vocab = ''
+    selected_book, selected_unit, combined_vocab = setup_bookunit()
+    try:
+        book_to_units, books, kg_vocab = setup_function()
+
+    except DatabaseError as e:
+        print(f"Database error: {e}")
+        return render_template('error.html', error_message="Database error occurred.")
+
+
 
     if request.method == 'POST':
         selected_book = request.form.get('bookName')
@@ -245,29 +249,14 @@ def book_unit():
 
         if request.form['action'] == 'bamboozle':
             vocab_words = request.form.get('vocab')
-            vocabs = vocab_words.split(', ') if vocab_words else []
+            # vocabs = vocab_words.split(', ') if vocab_words else []
 
-            title = session.get('title', '')
-            if not vocabs:
-                return render_template('book_unit.html', error="Vocabulary is required.", books=books, book_to_units=book_to_units, selected_book=selected_book, selected_unit=selected_unit)
-
-            local_driver = Driver()
-            print(vocabs)
-            thread = threading.Thread(target=local_driver.create_bamboozle,
-                                      args=(url, EMAIL, PASSWORD, title, vocabs))
-            thread.start()
-            return render_template('book_unit.html', vocab=vocab_words, books=books, book_to_units=book_to_units, kg_vocab=kg_vocab, selected_book=selected_book, selected_unit=selected_unit)
+            title = request.form.get('bamboozleTitle')
+            return handle_bamboozle(vocab_words, title, books, book_to_units, kg_vocab, selected_book, selected_unit)
 
         elif request.form['action'] == 'reviewQuiz':
             vocabs = request.form.get('vocab')
-            if not vocabs:
-                return render_template('book_unit.html', error="Vocabulary is required.", books=books, kg_vocab=kg_vocab, book_to_units=book_to_units, selected_book=selected_book, selected_unit=selected_unit)
-
-            local_driver = Driver()
-            quiz_thread = threading.Thread(target=local_driver.create_quiz, args=(vocabs, API_KEY, 550))
-            quiz_thread.start()
-
-            return render_template('book_unit.html', vocab=vocabs, books=books, book_to_units=book_to_units, kg_vocab=kg_vocab, selected_book=selected_book, selected_unit=selected_unit)
+            return handle_review_quiz(vocabs, books, kg_vocab, book_to_units, selected_book, selected_unit)
 
         elif request.form['action'] == 'ShowVocab':
 
@@ -279,7 +268,7 @@ def book_unit():
 
             # Fetch vocab for selected book and unit
             if book != 'None':
-                _, new_vocab = db_5.get_vocab(book, unit)
+                new_vocab = db_5.get_vocab(book, unit)
 
                 new_combined_vocab.extend(new_vocab)
 
@@ -315,6 +304,55 @@ def book_unit():
                                    selected_book=selected_book, selected_unit=selected_unit)
 
     return render_template('book_unit.html', vocab=combined_vocab, books=books, book_to_units=book_to_units, kg_vocab=kg_vocab, selected_book=selected_book, selected_unit=selected_unit)
+
+#query database for book and coresponding unit vocab
+def setup_function():
+    book_to_units = db_5.some_function()
+    books = db_5.get_all_books()
+    kg_vocab = db_5.make_kg_dict()
+    return book_to_units, books, kg_vocab
+
+
+# Retrieves and initializes session variables for selected book, unit,
+# and combined vocabulary, used in the book unit route.
+def setup_bookunit():
+    if 'selected_book' not in session or request.method == 'GET':
+        session['selected_book'] = 'None'
+    if 'selected_unit' not in session or request.method == 'GET':
+        session['selected_unit'] = 'None'
+
+    selected_book = session.get('selected_book', 'None')
+    selected_unit = session.get('selected_unit', 'None')
+    combined_vocab = ''
+    return selected_book, selected_unit, combined_vocab
+
+
+
+def handle_bamboozle(vocab_words, bamboozle_title, books, book_to_units, kg_vocab, selected_book, selected_unit):
+    if not vocab_words:
+        return render_template('book_unit.html', error="Vocabulary is required.", books=books, book_to_units=book_to_units, kg_vocab=kg_vocab, selected_book=selected_book, selected_unit=selected_unit)
+    # Split vocab words into a list
+    vocabs = vocab_words.split(', ')
+    # Initialize Driver and start bamboozle thread
+    local_driver = Driver()
+    thread = threading.Thread(target=local_driver.create_bamboozle,
+                              args=(url, EMAIL, PASSWORD, bamboozle_title, vocabs))
+    thread.start()
+    # Return the template with the updated vocabulary
+    return render_template('book_unit.html',  vocab=vocab_words, books=books, book_to_units=book_to_units, kg_vocab=kg_vocab, selected_book=selected_book, selected_unit=selected_unit)
+
+def handle_review_quiz(vocabs, books, kg_vocab, book_to_units, selected_book, selected_unit):
+    if not vocabs:
+        return render_template('book_unit.html', error="Vocabulary is required.", books=books, kg_vocab=kg_vocab,
+                               book_to_units=book_to_units, selected_book=selected_book, selected_unit=selected_unit)
+
+    local_driver = Driver()
+    quiz_thread = threading.Thread(target=local_driver.create_quiz, args=(vocabs, API_KEY))
+    quiz_thread.start()
+
+    return render_template('book_unit.html', vocab=vocabs, books=books, book_to_units=book_to_units, kg_vocab=kg_vocab,
+                           selected_book=selected_book, selected_unit=selected_unit)
+
 
 @app.route('/success', methods=['GET'])
 def success_page():
@@ -363,13 +401,13 @@ Please do not include the answers in the quiz. Aim to keep the total length of t
 
 
 
-def generate_esl_quiz(api_key, prompt, max_tokens=550):
+def generate_esl_quiz(API_KEY, prompt, max_tokens=550):
     # if not vocab_words:
     #     return "Vocabulary list is empty."
 
     prompt = prompt
 
-    openai.api_key = api_key
+    openai.api_key = API_KEY
 
     try:
         response = openai.ChatCompletion.create(
@@ -387,7 +425,8 @@ def generate_esl_quiz(api_key, prompt, max_tokens=550):
 
 def create_word_search(vocab):
     puzzle = WordSearch(vocab)
-    location = puzzle.save(path=r'C:\Users\PC\Desktop\pythonProject\Bamboozle_ESL-game\word_search.pdf')
+    location = puzzle.save(path=r"C:\Users\PC\Desktop\work_webpage\Bamboozle_ESL-game\word_search.pdf")
+
 
     return location
 
@@ -397,6 +436,8 @@ def create_a_word_document(text):
     doc.add_paragraph(text)
     filename = 'word_doc.docx'
     doc.save(filename)
+    path = os.path.abspath(filename)
+    print(f'Full path: {path}')
     print(f"Document saved as {filename}")
 
 def send_email_with_attachment(file_path):
@@ -405,7 +446,6 @@ def send_email_with_attachment(file_path):
     send_to = E_NAME
     subject = f'Quiz'
     body = ':)'
-    # file_path = 'C:\\Users\\PC\\Desktop\\pythonProject\\Bamboozle_ESL-game\\word_doc.docx'
     file_path = file_path
     server = None
     try:
@@ -455,4 +495,5 @@ if __name__ == '__main__':
 
 
 
-#should work. Errors for making game and quiz included. Need to make errors for searching DB
+#*****this one*****
+#title not being passed from db_5.py
