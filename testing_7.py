@@ -3,3 +3,4 @@ b = 'bbb'
 
 c = a + ' ' + b
 print(c)
+#easy
