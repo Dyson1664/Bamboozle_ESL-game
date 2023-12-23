@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 import os
 from time import sleep
 from sqlite3 import DatabaseError
-
+#C:\Users\PC\Desktop\work_webpage\Bamboozle_ESL-game\test4.py
 import db_5
 import openai
 from docx import Document
@@ -115,6 +115,7 @@ class Driver:
                 EC.element_to_be_clickable((By.CLASS_NAME, 'close-gif'))
             )
             close_button.click()
+            self.accept_cookies()
 
             for vocab in vocabs:
                 if vocab:
@@ -145,6 +146,7 @@ class Driver:
         vocab_box.click()
         vocab_box.clear()
         vocab_box.send_keys(vocabs)
+
 
         image_library_button_xpath = "//div[@id='question-form']//button[@type='button']"
         image_library_button = WebDriverWait(self.driver, 20).until(
@@ -208,6 +210,24 @@ class Driver:
         except WebDriverException as e:
             print("Exception occurred while closing the popup: ", e)
 
+    def accept_cookies(self):
+        try:
+            cookie_button = WebDriverWait(self.driver, 5).until(
+                EC.element_to_be_clickable(
+                    (By.CSS_SELECTOR, ".js-cookie-consent-agree.cookie-consent__agree.btn.btn-primaryed"))
+            )
+            cookie_button.click()
+
+            close_gpt = WebDriverWait(self.driver, 5).until(
+                EC.element_to_be_clickable(
+                    (By.XPATH, "//*[@id=\"beamerAnnouncementBar\"]/div[2]/div[2]")
+                )
+            )
+            close_gpt.click()
+
+        except Exception as e:
+            print('Could not click the cookie button', e)
+
     def create_bamboozle(self, url, EMAIL, PASSWORD, title, vocabs):
         self.sign_in(url, EMAIL, PASSWORD)
         self.create_game(title)
@@ -265,6 +285,9 @@ def book_unit():
             kg_category = request.form.get('kgTitle')
             existing_vocab = request.form.get('vocab', '')
             new_combined_vocab = []
+            # Reset selected_book and selected_unit to 'None' after processing ShowVocab
+            session['selected_book'] = 'None'
+            selected_book = 'None'
 
             # Fetch vocab for selected book and unit
             if book != 'None':
@@ -287,7 +310,8 @@ def book_unit():
 
             else:
 
-                combined_vocab = ', '.join(new_combined_vocab)
+                # combined_vocab = ', '.join(new_combined_vocab)
+                combined_vocab = ', '.join(str(item) for item in new_combined_vocab)
 
 
             return render_template('book_unit.html', vocab=combined_vocab, books=books, book_to_units=book_to_units, kg_vocab=kg_vocab, selected_book=selected_book, selected_unit=selected_unit)

@@ -1,5 +1,9 @@
 import sqlite3
 
+
+# C:\Users\PC\Desktop\work_webpage\Bamboozle_ESL-game\db_5.py
+
+
 def create_db():
 #connect to or creat db
     conn = sqlite3.connect('vocabulary.db')
@@ -405,14 +409,12 @@ def get_vocab(book, unit):
     cursor.close()
     conn.close()
 
-    title = book.capitalize() + ' Unit ' + str(unit) + ' Vocab'
+    # title = book.capitalize() + ' Unit ' + str(unit) + ' Vocab'
     list1 = []
     for word in results:
         list1.append(''.join(word))
 
-    print(', '.join(list1))
-    print(title, list1)
-    return title, list1
+    return list1
 
 def get_kg_vocab(level, title):
     conn = sqlite3.connect('vocabulary.db')
@@ -490,6 +492,7 @@ def get_all_books():
     # Fetch distinct book names
     cur.execute("SELECT DISTINCT book FROM vocab")
     books = [book[0] for book in cur.fetchall()]
+    books.sort()
 
     conn.close()
     return books
