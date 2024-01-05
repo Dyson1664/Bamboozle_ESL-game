@@ -743,7 +743,7 @@ def make_kg_dict():
     cursor.close()
     conn.commit()
 
-    print(dict)
+    # print(dict)
     return dict
 
 
@@ -764,10 +764,11 @@ if __name__ == '__main__':
     # create_db2()  # Create the database and tables
     # insert_vocab(vocab_entries)  # Insert initial vocabulary entries
     # remove_duplicates()  # Optionally remove duplicates if needed
-    # get_vocab('Look1', 11)
-    # get_kg_vocab('KG', 'Bedroom')
-    make_kg_dict()
+    get_vocab('Look1', 11)
+    get_kg_vocab('KG', 'Bedroom')
+    # make_kg_dict()
     # insert_vocabs2(vocab_entries2)
+    # pass
 
 
 

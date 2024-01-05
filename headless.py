@@ -11,9 +11,9 @@ from dotenv import load_dotenv
 import os
 from time import sleep
 from sqlite3 import DatabaseError
-#C:\Users\PC\Desktop\work_webpage\Bamboozle_ESL-game\test4.py
 import db_5
-import openai
+from openai import OpenAI
+
 from docx import Document
 from word_search_generator import WordSearch
 import threading
@@ -33,34 +33,24 @@ E_PASS = os.getenv('E_PASS')
 E_NAME = os.getenv('E_NAME')
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
+client = OpenAI(api_key=os.environ['API_KEY'])
 
+os.environ["GOOGLE_CHROME_BIN"] = r'C:\Program Files\Google\Chrome\Application\chrome.exe'
+#
+os.environ["CHROMEDRIVER_PATH"] = r'C:\Users\PC\Downloads\chromedriver-win64 (2)\chromedriver-win64\chromedriver.exe'
 class Driver:
     def __init__(self):
-        chrome_options = Options()
-        chrome_options.add_experimental_option("detach", True)
-        chrome_options.add_argument('--headless')
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+        chrome_options.add_argument("--headless")
         chrome_options.add_argument('--start-maximized')
-        service = Service(ChromeDriverManager().install())
-        self.driver = webdriver.Chrome(service=service, options=chrome_options)
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument("--no-sandbox")
+        self.driver = webdriver.Chrome(service=Service(executable_path=os.environ.get("CHROMEDRIVER_PATH")),
+                                       options=chrome_options)
 
-    def vocabs_to_enter(self, name, unit):
-        title, vocabs = db_5.get_vocab(name, unit)
-        return title, vocabs
-    def enter_vocab(self, title, vocabs):
-        self.driver.get('http://127.0.0.1:5001/vocab')
-        try:
-            title_box = WebDriverWait(self.driver, 15).until(
-                EC.presence_of_element_located((By.ID, 'title')))
-            title_box.clear()
-            title_box.send_keys(title)
 
-            for num, box in enumerate(vocabs, start=1):
-                input_box = WebDriverWait(self.driver, 15).until(EC.presence_of_element_located((By.ID, f'vocab{num}')))
-                input_box.clear()
-                input_box.send_keys(box)
 
-        except WebDriverException as e:
-            print("Exception occurred while interacting with the element: ", e)
 
     def sign_in(self, url, email, password):
         self.driver.get(url)
@@ -81,7 +71,6 @@ class Driver:
     #create game name and description
     def create_game(self, title):
         try:
-            print(title)
             title_box = WebDriverWait(self.driver, 10).until(
                 EC.presence_of_element_located((By.ID, 'one')))
             title_box.clear()
@@ -119,7 +108,6 @@ class Driver:
             close_button.click()
             self.accept_cookies()
 
-
             for vocab in vocabs:
                 if vocab:
                     self.questions_search_loop(vocab)
@@ -131,6 +119,7 @@ class Driver:
                 EC.element_to_be_clickable((By.XPATH, close_game))
             )
             make_game.click()
+            print('Bamboozle made')
 
         except WebDriverException as e:
             print("Exception occurred while interacting with the element: ", e)
@@ -150,12 +139,14 @@ class Driver:
         vocab_box.clear()
         vocab_box.send_keys(vocabs)
 
+
         image_library_button_xpath = "//div[@id='question-form']//button[@type='button']"
         image_library_button = WebDriverWait(self.driver, 20).until(
             EC.element_to_be_clickable((By.XPATH, image_library_button_xpath))
         )
-        image_library_button.click()
 
+        # Click the button
+        image_library_button.click()
         # is it needed?
         sleep(3)
         try:
@@ -165,21 +156,26 @@ class Driver:
             )
             first_image.click()
 
-        except:
+        except Exception as e:
             try:
                 fifth_image = WebDriverWait(self.driver, 15).until(
                     EC.element_to_be_clickable(
                         (By.CSS_SELECTOR, "div.giphy-gif:nth-of-type(5) img.giphy-gif-img.giphy-img-loaded"))
                 )
                 fifth_image.click()
-            except:
+
+            except Exception as e:
+                print('close/re-open')
                 self.close_reopen()
-            print('Couldnt click first pic. Had to close and reopen')
+                print('Couldnt click first pic. Had to close and reopen', e)
+
+            print('Could not click first image')
 
         save_button = WebDriverWait(self.driver, 10).until(
             EC.element_to_be_clickable((By.ID, "tally"))
         )
         save_button.click()
+
 
     def close_reopen(self):
         try:
@@ -188,6 +184,7 @@ class Driver:
             )
             close_button.click()
 
+
             image_library_button_xpath = "//div[@id='question-form']//button[@type='button']"
             image_library_button = WebDriverWait(self.driver, 20).until(
                 EC.element_to_be_clickable((By.XPATH, image_library_button_xpath))
@@ -195,20 +192,25 @@ class Driver:
 
             image_library_button.click()
 
+
             try:
 
-                first_image = WebDriverWait(self.driver, 15).until(
+                sixth_image = WebDriverWait(self.driver, 15).until(
                     EC.element_to_be_clickable(
-                        (By.CSS_SELECTOR, "div.giphy-gif:nth-of-type(1) img.giphy-gif-img.giphy-img-loaded"))
+                        (By.CSS_SELECTOR, "div.giphy-gif:nth-of-type(6) img.giphy-gif-img.giphy-img-loaded"))
                 )
-                first_image.click()
+                sixth_image.click()
 
-            except:
+
+            except Exception as e:
                 fifth_image = WebDriverWait(self.driver, 15).until(
                     EC.element_to_be_clickable(
                         (By.CSS_SELECTOR, "div.giphy-gif:nth-of-type(5) img.giphy-gif-img.giphy-img-loaded"))
                 )
                 fifth_image.click()
+
+                print('Could not even click 5th image', e)
+
         except WebDriverException as e:
             print("Exception occurred while closing the popup: ", e)
 
@@ -230,7 +232,6 @@ class Driver:
         except Exception as e:
             print('Could not click the cookie button', e)
 
-
     def create_bamboozle(self, url, EMAIL, PASSWORD, title, vocabs):
         self.sign_in(url, EMAIL, PASSWORD)
         self.create_game(title)
@@ -239,8 +240,9 @@ class Driver:
     def create_quiz(self, vocab_words, API_KEY):
         prompt = create_prompt(vocab_words)
         response = generate_esl_quiz(API_KEY, prompt, max_tokens=550)
-        create_a_word_document(response)
-        send_email_with_attachment(r"C:\Users\PC\Desktop\work_webpage\Bamboozle_ESL-game\word_doc.docx")
+        path = create_a_word_document(response)
+        # send_email_with_attachment(r"C:\Users\PC\Desktop\work_webpage\Bamboozle_ESL-game\word_doc.docx")
+        send_email_with_attachment(path)
 
 
     def create_word_search2(self, vocab):
@@ -260,7 +262,6 @@ def book_unit():
     except DatabaseError as e:
         print(f"Database error: {e}")
         return render_template('error.html', error_message="Database error occurred.")
-
 
 
     if request.method == 'POST':
@@ -379,15 +380,6 @@ def handle_review_quiz(vocabs, books, kg_vocab, book_to_units, selected_book, se
     return render_template('book_unit.html', vocab=vocabs, books=books, book_to_units=book_to_units, kg_vocab=kg_vocab,
                            selected_book=selected_book, selected_unit=selected_unit)
 
-
-@app.route('/success', methods=['GET'])
-def success_page():
-    return render_template('success.html')
-
-@app.route('/login_failure', methods=['GET'])
-def failure():
-    return render_template('login_failure.html')
-
 url = 'https://www.baamboozle.com/games/create'
 
 
@@ -423,20 +415,13 @@ Please do not include the answers in the quiz. Aim to keep the total length of t
 2. Another question about the story.
 ... and so on."""
 
-
-
-
-
 def generate_esl_quiz(API_KEY, prompt, max_tokens=550):
-    # if not vocab_words:
-    #     return "Vocabulary list is empty."
-
     prompt = prompt
 
-    openai.api_key = API_KEY
+    client = OpenAI(api_key=API_KEY)
 
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-4",  # Specify the GPT-4 model
             messages=[
                 {"role": "system", "content": "You are a skilled ESL teacher."},
@@ -444,17 +429,17 @@ def generate_esl_quiz(API_KEY, prompt, max_tokens=550):
             ],
             max_tokens=max_tokens
         )
-        return response['choices'][0]['message']['content']
+        return response.choices[0].message.content
     except Exception as e:
         return f"An error occurred: {e}"
 
-
 def create_word_search(vocab):
     puzzle = WordSearch(vocab)
-    location = puzzle.save(path=r"C:\Users\PC\Desktop\work_webpage\Bamboozle_ESL-game\word_search.pdf")
+    filename = 'word_search.pdf'
+    puzzle.save(filename)
 
-
-    return location
+    # location = puzzle.save(path=r"C:\Users\PC\Desktop\work_webpage\Bamboozle_ESL-game\word_search.pdf")
+    return os.path.abspath(filename)
 
 
 def create_a_word_document(text):
@@ -463,8 +448,7 @@ def create_a_word_document(text):
     filename = 'word_doc.docx'
     doc.save(filename)
     path = os.path.abspath(filename)
-    print(f'Full path: {path}')
-    print(f"Document saved as {filename}")
+    return path
 
 def send_email_with_attachment(file_path):
     send_from = E_NAME
@@ -520,6 +504,7 @@ if __name__ == '__main__':
     app.run(debug=True, port=5001, use_reloader=False)
 
 
+#works. Change around the loop for choosing pictures as in add e and try optimize it#
 
-#*****this one*****
-#title not being passed from db_5.py
+
+

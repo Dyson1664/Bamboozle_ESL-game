@@ -1,0 +1,376 @@
+SQLite format 3   @        	                                                             .WJ
+   � j�                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                �'%%�tablekindergartenkindergartenCREATE TABLE kindergarten (
+    id INTEGER PRIMARY KEY,
+    level TEXT NOT NULL,
+    title TEXT NOT NULL,
+    vocab TEXT NOT NULL)��tablevocabvocabCREATE TABLE vocab (
+    id INTEGER PRIMARY KEY,
+    book TEXT NOT NULL,
+    unit INTEGER NOT NULL,
+    word TEXT NOT NULL
+)   �    �����sbN=+�������yfUA0
+
+�
+�
+�
+�
+�
+�
+
+m
+V
+C
+2
+"
+�������raO<,�������s\I6#
+�
+�
+�
+�
+�
+�
+
+n
+\
+K
+:
+&
+
+ 	�	�	�	�	�	�	y	g	U	C	1	 	������mWF5$�������r`M;)�������u`N;(�����{gUC0������|iWE2 �������hL3"
+�������o\J7 ������  �A Look2home�@ Look2ready�? Look2month�> Look2snack�= Look2healthy�< #Look2ride a bike�; 'Look2get to school�: Look2come home�9 Look2truck�8 Look2ship�7 Look2plane�6 !Look2motorcycle�5 !Look2helicopter�4 Look2car�3 Look2bus�2 Look2
+time�1 Look2
+kite�0 Look2
+forget�/ Look2
+bright�. Look2
+rainbow�- Look2
+sky�, #Look2
+wear a coat�+ )Look2
+put on a scarf�* /Look2
+bring an umbrella�) Look2
+windy�( Look2
+sunny�' Look2
+snowing�& Look2
+raining�% Look2
+hot�$ Look2
+cold�# Look2
+cloudy�" Look2	game�! Look2	cake�  Look2	sleep� Look2	slow� Look2	fast� Look2	rhino� Look2	zebra� Look2	tiger� Look2	snake� Look2	monkey� Look2	lion� Look2	hippo� Look2	giraffe� Look2	elephant� Look2	crocodile� Look2angry� Look2long� Look2sing� Look2bucket� Look2enjoy� Look2festival�
+ Look2lemonade� Look2balloon� #Look2take photos�
+ +Look2listen to music�	 Look2hold� Look2eat� Look2drink� Look2dance� Look2tree� Look2present� Look2frog� Look2dress� Look2crab�  Look2bread Look2burger~ Look2get} Look2money| Look2put{ Look2sausagez Look2peary Look2mangox Look2juicew Look2grapesv Look2friesu Look2eggt Look2chickens Look2cheeser Look2beansq Look2plump Look2glasso Look2flagn Look2clockm Look2blackl Look2lovek Look2waitj Look2findi Look2hurth Look2go to bedg #Look2take a bathf #Look2do homeworke !Look2eat dinnerd Look2eat lunchc 'Look2eat breakfastb #Look2get dresseda Look2get up` Look2swim_ Look2stop^ Look2spoon] Look2snack\ Look2small[ Look2slideZ Look2skirtY Look2useX Look2jobW Look2workV Look2youngU #Look2taxi driverT 'Look2soccer playerS Look2farmerR Look2doctorQ Look2builderP Look2pinkO Look2sinkN Look2socksM Look2duckL Look2fantasticK Look2easyJ Look2differentI Look2teamH Look2throwG Look2kickF Look2jumpE Look2hitD Look2catchC Look2bounceB Look2tennisA Look2hockey@ !Look2basketball? Look2baseball> Look2fish= Look2ship< Look2lunch; Look2chair: Look2outside9 Look2wall8 Look2stairs7 Look2inside6 Look2window5 Look2rug4 Look2mirror3 Look2floor2 Look2door1 #Look2dining room0 Look2bookcase/ Look2balcony. Look2armchair- Look2brother, Look2these+ Look2this* Look2borrow) Look2new( Look2old' Look2cool& Look2tablet% !Look2skateboard$ Look2robot# Look2markers" Look2guitar! Look2camera  +Look2building bricks Look2bike 	Look2birthday 	Look2bath 	Look2Thursday 	Look2garden 	Look2grade 	Look2homework 	Look2class 	Look2science 	Look2reading 	Look2music 	Look2math
+ 	Look2gym 	Look2English 	Look2computers
+ 	Look2art 	Look2birthday 	Look2bath
+ 	Look2Thursday 	Look2garden 	Look2grade
+ 	Look2homework	 	Look2class 	Look2science 	Look2reading 	Look2music 	Look2math
+ 	Look2gym 	Look2English 	Look2comput    �n   �7   w
+
+� hM �������sbN=+�
+�
+�
+�
+�
+
+m
+V
+C
+2
+"
+�������raO<,�������s\I6#
+�
+�
+�
+�
+�
+�
+
+n
+\
+K
+:
+&
+
+ 	�	�	�	�	�	�	y	g	U	C	1	 	������mWF5$�������r`M;)�������u`N;(�����{gUC0������|iWE2 �������hL3"������pX@-
+����������������������
+�� Look2home�@ Look2ready�? Look2month�> Look2snack�= Look2healthy�< #Look2ride a bike�; 'Look2get to school�: Look2come home�9 Look2truck�8 Look2ship�7 Look2plane�6 !Look2motorcycle�5 !Look2helicopter�4 Look2car�3 Look2bus�2 Look2
+time�1 Look2
+kite�0 Look2
+forget�/ Look2
+
+�� 'Look2get to school
+�m Look2
+sky�, #Look2
+wear a coat�+ )Look2
+put on a scarf�* /Look2
+bring an umbrella�) Look2
+windy�( Look2
+sunny�' Look2
+snowing�& Look2
+raining�% Look2
+hot�$ Look2
+cold�# Look2
+cloudy�" Look2	game�! Look2	cake�  Look2	sleep� Look2	slow� Look2	fast� Look2	rhino� Look2	zebra
+�� Look2	tiger� Look2	snake� Look2	monkey� Look2	lion� Look2	hippo� Look2	giraffe� Look2	elephant� Look2	crocodile� Look2angry� Look2long� Look2sing� Look2bucket� Look2enjoy� Look2festival�
+ Look2lemonade� Look2balloon� #Look2take photos�
+ +Look2listen to music�	 Look2hold� Look2eat� Look2drink� Look2dance� Look2tree� Look2present� Look2frog� Look2dress� Look2crab�  Look2bread Look2burger~ Look2get} Look2money| Look2put{ Look2sausagez Look2peary Look2mangox Look2juicew Look2grapesv Look2friesu Look2eggt Look2chickens Look2cheeser Look2beansq Look2plump Look2glasso Look2flagn Look2clockm Look2blackl Look2lovek Look2waitj Look2findi Look2hurth Look2go to bedg #Look2take a bathf #Look2do homeworke !Look2eat dinnerd Look2eat lunchc 'Look2eat breakfastb #Look2get dresseda Look2get up` Look2swim_ Look2stop^ Look2spoon] Look2snack\ Look2small[ Look2slideZ Look2skirtY Look2useX Look2jobW Look2workV Look2youngU #Look2taxi driverT 'Look2soccer playerS Look2farmerR Look2doctorQ Look2builderP Look2pinkO Look2sinkN Look2socksM Look2duckL Look2fantasticK Look2easyJ Look2differentI Look2teamH Look2throwG Look2kickF Look2jumpE Look2hitD Look2catchC Look2bounceB Look2tennisA Look2hockey@ !Look2basketball? Look2baseball> Look2fish= Look2ship< Look2lunch; Look2chair: Look2outside9 Look2wall8 Look2stairs7 Look2inside6 Look2window5 Look2rug4 Look2mirror3 Look2floor2 Look2door1 #Look2dining room0 Look2bookcase/ Look2balcony. Look2armchair- Look2brother, Look2these+ Look2this* Look2borrow) Look2new( Look2old' Look2cool& Look2tablet% !Look2skateboard$ Look2robot# Look2markers" Look2guitar! Look2camera  +Look2building bricks Look2bike  
+	Look�: Look2come home�9 Look2truck�8 Look2ship�7 Look2plane�6 !Look2motorcycle�5 !Look2helicopter�4 Look2car�3 Look2bus�2 Look2
+time�1 Look2
+kite�0 Look2
+forget�/ Look2
+bright�. Look2
+rainbow 	Look2birthday 	Look2bath
+ 	Look2Thursday 	Look2garden 	Look2grade
+ 	Look2homework	 	Look2class 	Look2science 	Look2reading 	Look2music 	Look2math
+ 	Look2gym 	Look2English 	Look2computers
+ 	Look2art
+   ��
+j
+X
+G
+3
+#
+
+	�	�	�	�	�	�	}	j	W	F	4	�������r_H2
+���o�������q_N9$������p\J8'
+�
+�
+�
+�
+�
+�
+|
+f
+Q
+>
++
+
+������~iVC0
+������_O=,
+�
+�
+�
+�
+�
+�
+�
+�����yhUB2�������veSA/������|iXF5"�������m\K8&�����n\I8&������mZD.������      �7 Look1house
+�6 Look1TV�5 Look1shower�4 Look1cabinet�3 Look1bed�2 #Look1living room�1 Look1kitchen�0 Look1bedroom�/ Look1bathroom�. Look1umbrella�- Look1table�, Look1sofa�+ Look1rabbit�* Look1queen�) Look1face�( Look1body�' Look1hair�& Look1skeleton�% Look1hand�$ Look1arm�# Look1ear�" Look1head�! Look1eye�  Look1mouth� Look1foot� Look1leg� Look1orange� Look1nose� 'Look1birthday cake� )Look1birthday party� Look1middle� Look1cousin
+� Look1me� Look1baby� Look1aunt� Look1uncle� Look1mom� Look1dad� Look1grandma� Look1grandpa� Look1lamp� Look1kiwi�
+ Look1jellyfish� Look1insect� Look1trip�
+ Look1dinosaur�	 Look1museum� Look1woman� Look1man� Look1girl� Look1boy� Look1horse� Look1goat� Look1fish� Look1elephant�  Look1fun� Look1favorite�~ Look1marble�} Look1train�| !Look1teddy bear�{ Look1plane�z Look1kite�y Look1game�x Look1doll�w Look1bat�v Look1ball�u 	Look1carrot�t 	Look1apple�s 	Look1desk�r 	Look1chair�q 	Look1board�p 	Look1poster�o 	Look1ruler�n 	#Look1pencil case�m 	Look1pencil
+�l 	Look1pen�k 	Look1eraser�j 	Look1crayon�i 	Look1book
+�h 	Look1bag�g Look1yellow�f Look1white
+�e Look1red�d Look1purple�c Look1orange� Look2	monkey� Look2	lion� Look2	hippo� Look2	giraffe� Look2	elephant� Look2	crocodile� Look2angry� Look2long� Look2sing� Look2bucket� Look2enjoy� Look2festival�
+ Look2lemonade� Look2balloon� #Look2take photos�
+ +Look2listen to music�	 Look2hold� Look2eat� Look2drink� Look2dance� Look2tree� Look2present� Look2frog� Look2dress� Look2crab�  Look2bread Look2burger~ Look2get} Look2money| Look2put{ Look2sausagez Look2peary Look2mangox Look2juice�; 'Look2get to school�: Look2come home�9 Look2truck�8 Look2ship�7 Look2plane�6 !Look2motorcycle�5 !Look2helicopter�4 Look2car�3 Look2bus�2 Look2
+time�1 Look2
+kite�0 Look2
+forget�/ Look2
+bright�. Look2
+rainbow�- Look2
+sky�, #Look2
+wear a coat�+ )Look2
+put on a scarf�* /Look2
+bring an umbrella�) Look2
+windy�( Look2
+sunny�' Look2
+snowing�& Look2
+raining�% Look2
+hot�$ Look2
+cold�# Look2
+cloudy�" Look2	game�! Look2	cake�  Look2	sleep� Look2	slow� Look2	fast� Look2	rhino� Look2	zebra�A Look2home�@ Look2ready�? Look2month�> Look2snack�= Look2healthy�< #Look2ride a bike�b Look1green�a Look1brown�` Look1blue�_ Look1black
+�^ Look1ten�] Look1nine�\ Look1eight�[ Look1seven
+�Z Look1six�Y Look1five�X Look1four�W Look1three
+�V Look1two
+�U Look1one� Look2	tiger� Look2	snake�T Look2tube�S Look2cute�R Look2cube�Q Look2famous�P Look2grown-up�O Look2cartoon�N Look2funny�M Look2smart�L Look2silly�K Look2scary�J Look2quiet�I Look2naughty�H Look2loud�G Look2little�F Look2kind�E Look2dirty�D Look2clean�C Look2cone�B Look2nose
+   �� ������q_K6	������zgUB.
+�
+�
+�
+�
+�
+�
+�
+n
+[
+G
+2
+
+�������n[D/������gT6%
+�
+�
+�
+�
+�
+�
+�
+u
+`
+E
+1
+
+	�	�	�	�	�	�	{	i	U	=	'	������lT?"������x`N7�������mYG5����rQ4������ycQ=+������xdQ;'����Look2
+bring an umbrella�3 Look2
+windy�2 Look2
+      �7 Look2
+sky�6 #Look2
+wear a coat�5 )Look2
+put on a scarf�4 /Look2
+bring an umbrella�3 Look2
+windy�2 Look2
+sunny�1 Look2
+snowing�0 Look2
+raining�/ Look2
+hot�. Look2
+cold�- Look2
+cloudy�, Look2	game�+ Look2	cake�* Look2	sleep�) Look2	slow�(�
+ Look3travel� Look3waterfall� Look3banana�
+ Look3holiday�	 Look3kangaroo� Look3summer� Look3unicycle� Look3skill� Look3juggle� Look3circus� Look3star� Look3chef� 'Look3wildlife park�  !Look3water park� !Look3theme park�~ #Look3summer camp�} Look3sculpture�| Look3ride�{ Look3museum�z Look3fair�y Look3dinosaur�x #Look3art gallery�w Look3giraffe�v Look3huge�u Look3pencil�t Look3face�s Look3explorer�r Look3sled�q Look3ski�p )Look3swim in a lake�o +Look3sleep in a tent�n 3Look3see a shooting star�m 5Look3ride on a motorcycle�l %Look3make friends�k 'Look3have a picnic!�j 9Look3go on a roller coaster�i #Look3go canoeing�h Look3get lost�g #Look3eat outside�f Look3
+wear�e Look3
+bear�d Look3
+parent�c Look3
+square�b Look3
+hair�a Look3
+air�` Look3
+change�_ Look3
+remains�^ Look3
+machine�] 'Look3
+archaeologist�\ )Look3
+walk to school�[ -Look3
+wait for the bus�Z Look3
+stay home�Y Look3
+sail�X !Look3
+need water�W Look3
+laugh�V Look3
+cry�U #Look3
+climb trees�T )Look3
+bike to school�S Look3	person�R Look3	world�Q Look3	burger�P Look3	birthday�O +Look3	shopping center�N Look3	factory�M !Look3	skyscraper�L #Look3	supermarket�K 'Look3	sports center�J #Look3	parking lot�I 'Look3	movie theater�H Look3	market�G Look3	hospital�F Look3	café�E Look3	bus stop�D Look3	building�C !Look3playground�B Look3bounce�A Look3down�@ Look3now�? Look3grade�> Look3worry�= Look3calm�< Look3medicine�; Look3toothache�: Look3sick�9 #Look3a sore neck�8 Look3a cough�7 Look3a cold�6 'Look3tooth (teeth)�5 Look3stomach�4 Look3shoulder�3 Look3back�2 Look3car�1 Look3dark�0 Look3morning�/ Look3short�. Look3dirty�- Look3birthday�, Look3almost�+ Look3die�* -Look3take (two hours)�) Look3meter�( !Look3round face�' Look3tall�& Look3thin�% Look3fat�$ 'Look3straight hair�# !Look3curly hair�" !Look3light hair�! Look3dark hair�  #Look3a moustache� Look3a beard� Look3breakfast� Look3fruit� Look3fish� Look3photo� Look3elephant� Look3safe� Look3hungry� Look3lizard� Look3busy� Look3waking up� Look3whale� Look3shark� Look3penguin� Look3parrot� Look3panda� Look3kangaroo� Look3dolphin�
+ Look3bat� Look3ant� Look3huge�
+ Look3ruler�	 Look3Tuesday� Look3blue� Look3choose� Look3glass� Look3bottle� Look3straw� Look3bowl� Look3plate� Look3cup�  !Look3vegetables� Look3soup�~ !Look3sandwiches�} Look3salad�| Look3pasta�{ Look3pancakes�z Look3noodles�y !Look3milkshakes�x Look3ketchup�w Look3closed�v Look3home�u Look3coat�t Look3know�s Look3window�r Look3real�q 'Look3interested in�p Look3teenagers�o Look3stick
+   �}������|gU=*�������udSA,
+
+�
+�
+�
+�
+�
+�
+�
+r
+\
+F
+1
+
+������p]J7$�������tcRA0
+�
+�
+�
+�
+�
+�
+�
+s
+`
+N
+8
+%
+
+	�	�	�	�	�	�	|	i	W	?	,		�������pX?"	�����l[J9(������wa�L9!�������}kUC0	������weQ>�����dG)�������rT<&
+����}         �n %Look3watch movies�m %Look3roller-skate�l -Look3read comic books�k 1Look3play hide-and-seek�j -Look3play video games�i #Look3make things�h Look3dress up�g !Look3do puzzles�f -Look3collect stickers�e Look3bake�d Look3ride�c Look3fly�b Look3my kite�a Look3right�` Look3night�_ Look3put away�^ Look3recycling�] %Look3pick (fruit)�\ -Look3water the plants�[ +Look3wash the dishes�Z 5Look3take out the garbage�Y 1Look3practice the piano�X #Look3make my bed�W #Look3go shopping�V #Look3fix my bike�U %Look3feed the dog�T Look3cook�S 3Look3clean up my bedroom�R Look3story�Q Look3please�P Look3week�O Look3country�N Look3beach�M Look3tree�L Look3exercise�K Look3subway�J Look3cable car�I Look3waterfall�H Look3village�G Look3town�F Look3river�E Look3path�D Look3mountain�C Look3lake�B Look3forest�A Look3field�@ Look3farm�? 	Look3Friday�> 	Look3play�= 	Look3paint�< 	Look3train�; 	Look3game�: 	Look3plane�9 	#Look3grandparent�8 	Look3parent�7 	Look3daughter�5 	Look3Australia�4 	%Look3South Africa�3 	Look3Japan�2 	Look3Italy�1 	Look3Poland�0 	Look3Spain�/ 	Look3the UK�. 	Look3Argentina�- 	Look3Brazil�, 	Look3the US�+ Look1sun�* Look1kid�) Look1red�( Look1hat�' Look1swing�& Look1paper�% Look1hot�$ 'Look1write a story�# #Look1sing a song�" #Look1read a book�! #Look1play soccer�  #Look1play a game� +Look1paint a picture� #Look1make a cake� !Look1fly a kite� Look1run� Look1jug� Look1cup� Look1bus� Look1bug� Look1flippers� Look1snorkel� Look1breathe� Look1mask� Look1sun hat� Look1shell� !Look1sandcastle� Look1sand� Look1ocean� Look1ice cream�
+ Look1boat� !Look1beach ball� Look1beach�
+ Look1
+nod�	 Look1
+mop� Look1
+fox� Look1
+dot� Look1
+dog� Look1
+great� Look1
+terrible� Look1
+tray� Look1
+lunch� Look1
+water�  Look1
+tomato� Look1
+rice�~ Look1
+potato�} Look1
+milk�| Look1
+lemon�{ Look1
+candy�z Look1
+bread�y Look1
+banana�x Look1	six�w Look1	sit�v Look1	lip�u Look1	bin�t Look1	big�s Look1	gloves�r Look1	hat�q Look1	boots�p Look1	happy�o Look1	scarecrow�n Look1	T-shirt�m Look1	socks�l Look1	skirt�k Look1	shoes�j Look1	shirt�i Look1	pants�h Look1	jeans�g Look1	dress�f Look1yes�e Look1pet
+�6 	Look3sonn�c Look1leg�b Look1bed�a Look1twenty�` Look1nineteen�_ Look1eighteen�^ Look1seventeen�] Look1sixteen�\ Look1fifteen�[ Look1fourteen�Z Look1thirteen�Y Look1twelve�X Look1eleven�W Look1food�V Look1farmer�U Look1pen�T Look1sheep�S Look1duck�R Look1donkey�Q Look1dog�P Look1cow�O Look1chicken�N Look1bird�M Look1bee�L Look1map�K Look1jam�J Look1flower�I Look1tiny�H Look1model�G Look1real�F Look1zoo�E #Look1town center�D 'Look1swimming pool�C Look1street�B Look1store�A !Look1playground�@ Look1park�? Look1library�> Look1zebra�= Look1yogurt�< Look1box�; Look1wall�: Look1violin�9 Look1water�8 Look1clock   �    	����p[J7& ������|iUA-
+�
+�
+�
+�
+�
+�
+e
+I
+4
+
+�����x_F.������u`H-
+�
+�
+�
+�
+�
+s
+\
+G
+1
+
+	�	�	�	�	�	�	r	\	G	3	 	������wcQ=,������t\C0������taM5!
+�������s]J2�����}gQ; 	�����yaM9&
+�����x]B,����{^    �) #KGDescriptionPigtails�( #KGDescriptionBeard�' #'KGDescriptionStraight Hair�& #!KGDescriptionCurly Hair�% #!KGDescriptionShort Hair�$ #KGDescriptionLong Hair�# #KGDescriptionBald�" KGDessertsCake�! KGDessertsIce Lolly�  KGDessertsIce Cream� KGDessertsPopcorn� KGDessertsChocolate� KGDessertsDonut� KGDessertsCrisps� KGDessertsCookies� KGDrinksCoffee� %KGDrinksOrange Juice� KGDrinksTea� KGDrinksMilk� KGDrinksSoda� KGDrinksLemonade� 'KGDrinksHot Chocolate� KGDrinksWater� #KGFamilyGrandfather� KGFamilyFather� KGFamilyBrother� KGFamilyMother� KGFamilyParents�
+ #KGFamilyGrandmother� KGFamilyFamily� KGFamilySister�
+ KGFantasyQueen�	 KGFantasyKing� KGFantasyCastle� KGFantasyDragon� KGFeelingsSad� KGFeelingsHappy� KGFeelingsSick� KGFeelingsTired� KGFeelingsThirsty� KGFeelingsHungry�  KGFoodSteak KGFoodHamburger~ KGFoodSandwich} KGFoodChicken| KGFoodPizza{ KGFoodRicez KGFoodEggsy KGFoodSaladx KGFruitGrapesw KGFruitPineapplev KGFruitCherryu KGFruitBananat !KGFruitStrawberrys KGFruitOranger KGFruitLemonq KGFruitApplep KGHouseWardrobeo KGHouseStudyn #KGHouseLiving Roomm KGHouseBathrooml KGHouseBedroomk KGHouseHousej KGHouseKitcheni KGHouseGardenh KGInsectsFlyg KGInsectsButterflyf KGInsectsMosquitoe KGInsectsBeed KGInsectsLadybugc KGInsectsWormb KGInsectsSpidera KGInsectsAnt` KGJobsFireman_ KGJobsPoliceman^ KGJobsStudent] KGJobsDoctor\ KGJobsCook[ KGJobsPostmanZ KGJobsNurseY KGJobsTeacherX KGNature2PathW KGNature2HillV KGNature2VolcanoU KGNature2SandT KGNature2BridgeS KGNature2MudR KGNature2CaveQ KGNature2WaterfallP KGNatureTreeO KGNatureGrassN KGNatureFlowerM KGNatureRainbowL KGNatureMountainK KGNatureStarsJ KGNatureMoonI KGNatureSunH !KGPlacesRestaurantG KGPlacesBus StopF KGPlacesZooE #KGPlacesSupermarketD KGPlacesParkC KGPlacesAirportB KGPlacesSchoolA KGPlacesHospital@ %#KGPrepositionsIn front of? %KGPrepositionsUnder> %KGPrepositionsOn= %KGPrepositionsAbove< %KGPrepositionsIn; %KGPrepositionsBetween: %KGPrepositionsNext to9 %KGPrepositionsBehind8 KGShapesRectangle7 KGShapesSquare6 KGShapesHeart5 KGShapesDiamond4 KGShapesOval3 KGShapesCircle2 KGShapesStar1 KGShapesTriangle0 KGSportsGolf/ KGSportsHockey. KGSportsTennis- KGSportsBadminton, !KGSportsVolleyball+ !KGSportsBasketball* KGSportsBaseball) KGSportsSoccer( KGTransportMotorbike' KGTransportBus& KGTransportBoat% KGTransportAirplane$ KGTransportTrain# KGTransportBicycle" KGTransportCar! !KGTransportHelicopter  !KGVegetablesCucumber !KGVegetablesBeans !KGVegetablesCorn !KGVegetablesCarrot !KGVegetablesTomato !KGVegetablesMushroom !KGVegetablesPotato !KGVegetablesOnion KGVerbs2Count KGVerbs2Dance KGVerbs2Laugh KGVerbs2Sing KGVerbs2Play KGVerbs2Swim KGVerbs2Watch KGVerbs2Cry KGVerbsRead KGVerbsWalk KGVerbsListen
+ KGVerbsDrink KGVerbsSleep KGVerbsRun
+ KGVerbsWrite	 KGVerbsEat KGWeatherSnowy KGWeatherWindy KGWeatherRainy KGWeatherCold KGWeatherHot KGWeatherCloudy KGWeatherFine KGWeathe   �)
+   �^ ������p[J7& ������|iUA-
+�
+�
+�
+�
+�
+�
+e
+I
+4
+
+�����x_F.������u`H-
+�
+�
+�
+�
+�
+s
+\
+G
+1
+
+	�	�	�	�	�	�	r	\	G	3	 	������wcQ=,������t\C0������taM5!
+�������s]J2�����}gQ; 	�����yaM9&
+�����x]B,����{^    �) #KGDescriptionPigtails�( #KGDescriptionBeard�' #'KGDescriptionStraight Hair�& #!KGDescriptionCurly Hair�% #!KGDescriptionShort Hair�$ #KGDescriptionLong Hair�# #KGDescriptionBald�" KGDessertsCake�! KGDessertsIce Lolly�  KGDessertsIce Cream� KGDessertsPopcorn� KGDessertsChocolate� KGDessertsDonut� KGDessertsCrisps� KGDessertsCookies� KGDrinksCoffee� %KGDrinksOrange Juice� KGDrinksTea� KGDrinksMilk� KGDrinksSoda� KGDrinksLemonade� 'KGDrinksHot Chocolate� KGDrinksWater� #KGFamilyGrandfather� KGFamilyFather� KGFamilyBrother� KGFamilyMother� KGFamilyParents�
+ #KGFamilyGrandmother� KGFamilyFamily� KGFamilySister�
+ KGFantasyQueen�	 KGFantasyKing� KGFantasyCastle� KGFantasyDragon� KGFeelingsSad� KGFeelingsHappy� KGFeelingsSick� KGFeelingsTired� KGFeelingsThirsty� KGFeelingsHungry�  KGFoodSteak KGFoodHamburger~ KGFoodSandwich} KGFoodChicken| KGFoodPizza{ KGFoodRicez KGFoodEggsy KGFoodSaladx KGFruitGrapesw KGFruitPineapplev KGFruitCherryu KGFruitBananat !KGFruitStrawberrys KGFruitOranger KGFruitLemonq KGFruitApplep KGHouseWardrobeo KGHouseStudyn #KGHouseLiving Roomm KGHouseBathrooml KGHouseBedroomk KGHouseHousej KGHouseKitcheni KGHouseGardenh KGInsectsFlyg KGInsectsButterflyf KGInsectsMosquitoe KGInsectsBeed KGInsectsLadybugc KGInsectsWormb KGInsectsSpidera KGInsectsAnt` KGJobsFireman_ KGJobsPoliceman^ KGJobsStudent] KGJobsDoctor\ KGJobsCook[ KGJobsPostmanZ KGJobsNurseY KGJobsTeacherX KGNature2PathW KGNature2HillV KGNature2VolcanoU KGNature2SandT KGNature2BridgeS KGNature2MudR KGNature2CaveQ KGNature2WaterfallP KGNatureTreeO KGNatureGrassN KGNatureFlowerM KGNatureRainbowL KGNatureMountainK KGNatureStarsJ KGNatureMoonI KGNatureSunH !KGPlacesRestaurantG KGPlacesBus StopF KGPlacesZooE #KGPlacesSupermarketD KGPlacesParkC KGPlacesAirportB KGPlacesSchoolA KGPlacesHospital@ %#KGPrepositionsIn front of? %KGPrepositionsUnder> %KGPrepositionsOn= %KGPrepositionsAbove< %KGPrepositionsIn; %KGPrepositionsBetween: %KGPrepositionsNext to9 %KGPrepositionsBehind8 KGShapesRectangle7 KGShapesSquare6 KGShapesHeart5 KGShapesDiamond4 KGShapesOval3 KGShapesCircle2 KGShapesStar1 KGShapesTriangle0 KGSportsGolf/ KGSportsHockey. KGSportsTennis- KGSportsBadminton, !KGSportsVolleyball+ !KGSportsBasketball* KGSportsBaseball) KGSportsSoccer( KGTransportMotorbike' KGTransportBus& KGTransportBoat% KGTransportAirplane$ KGTransportTrain# KGTransportBicycle" KGTransportCar! !KGTransportHelicopter  !KGVegetablesCucumber !KGVegetablesBeans !KGVegetablesCorn !KGVegetablesCarrot !KGVegetablesTomato !KGVegetablesMushroom !KGVegetablesPotato !KGVegetablesOnion KGVerbs2Count KGVerbs2Dance KGVerbs2Laugh KGVerbs2Sing KGVerbs2Play KGVerbs2Swim KGVerbs2Watch KGVerbs2Cry KGVerbsRead KGVerbsWalk KGVerbsListen
+ KGVerbsDrink KGVerbsSleep KGVerbsRun
+ KGVerbsWrite	 KGVerbsEat KGWeatherSnowy KGWeatherWindy KGWeatherRainy KGWeatherCold KGWeatherHot KGWeatherCloudy KGWeatherFine KGWeatherSunny
+   q� �����u`J4�����lW@*
+�
+�
+�
+�
+�
+p
+O
+,
+����wZC+�����u\?)
+�
+�
+�
+�
+�
+n
+S
+9
+
+	�	�	�	�	�	g	S	;	$	������mWA&�����ybH1������oXC/�����x`I0�                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    � !KGAdjectivesWeak� !KGAdjectivesStrong� !KGAdjectivesSmall� !KGAdjectivesBig� !KGAdjectivesSlow� !KGAdjectivesFast� !KGAdjectivesTall� !KGAdjectivesShort� KGAnimalsLizard� KGAnimalsPuppy� KGAnimalsOwl� KGAnimalsDeer� KGAnimalsRooster�
+ KGAnimalsHen� KGAnimalsGoat� KGAnimalsKitten�
+ KGAnimals 2Giraffe�	 KGAnimals 2Snake� KGAnimals 2Fox� KGAnimals 2Monkey� KGAnimals 2Zebra� KGAnimals 2Pig� KGAnimals 2Mouse� KGAnimals 2Kangaroo� KGAnimals 1Duck� KGAnimals 1Gorilla�  KGAnimals 1Lion� KGAnimals 1Rabbit�~ KGAnimals 1Turtle�} KGAnimals 1Penguin�| KGAnimals 1Elephant�{ KGAnimals 1Fish�z KGBathroomTowel�y KGBathroomShower�x KGBathroomHairdryer�w KGBathroomSoap�v KGBathroomSink�u KGBathroomBrush�t KGBathroomToilet�s KGBathroomBathtub�r KGBedroomCurtain�q KGBedroomToys�p KGBedroomMirror�o KGBedroomLamp�n KGBedroomTable�m KGBedroomPillow�l KGBedroomBlanket�k KGBedroomBed�j %KGBody Parts 2Finger�i %KGBody Parts 2Back�h %KGBody Parts 2Arm�g %KGBody Parts 2Hand�f %KGBody Parts 2Neck�e %KGBody Parts 2Foot�d %KGBody Parts 2Teeth�c %KGBody Parts 2Hair�b %KGBody Parts 1Nose�a %KGBody Parts 1Mouth�` %KGBody Parts 1Ears�_ %KGBody Parts 1Eyes�^ %KGBody Parts 1Toes�] %KGBody Parts 1Knees�\ %KGBody Parts 1Shoulders�[ %KGBody Parts 1Head�Z KGBuildingsTeepee�Y KGBuildingsHut�X !KGBuildingsSkyscraper�W KGBuildingsCastle�V KGBuildingsTemple�U KGBuildingsIgloo�T KGBuildingsFarm�S KGBuildingsHouse�R KGChristmasSnowman�Q )KGChristmasChristmas Tree�P KGChristmasReindeer�O KGChristmasSanta�N KGChristmasBell�M !KGChristmasCandy Cane�L KGChristmasAngel�K KGChristmasPresents �J /KGClassroom ObjectsComputer�I /KGClassroom ObjectsChair�H /KGClassroom ObjectsBook�G /KGClassroom ObjectsPaper �F /KGClassroom ObjectsScissors�E /KGClassroom ObjectsCrayon�D /KGClassroom ObjectsRuler�C /KGClassroom ObjectsPencil�B KGClothes1Shorts�A KGClothes1T-shirt�@ KGClothes1Socks�? KGClothes1Trousers�> KGClothes1Skirt�= KGClothes1Coat�< KGClothes1Shoes�; KGClothes1Hat�: KGClothes2Rainboots�9 KGClothes2Raincoat�8 KGClothes2Sweater�7 KGClothes2Mittens�6 KGClothes2Sandals�5 KGClothes2Sneakers�4 KGClothes2Jeans�3 KGClothes2Scarf�2 KGColoursBlack�1 KGColoursWhite�0 KGColoursPink�/ KGColoursOrange�. KGColoursGreen�- KGColoursBlue�, KGColoursYellow�+ KGColoursRed�* #KGDescriptionMoustache
