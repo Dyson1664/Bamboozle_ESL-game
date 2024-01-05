@@ -12,7 +12,8 @@ import os
 from time import sleep
 from sqlite3 import DatabaseError
 import db_5
-import openai
+from openai import OpenAI
+
 from docx import Document
 from word_search_generator import WordSearch
 import threading
@@ -32,17 +33,23 @@ E_PASS = os.getenv('E_PASS')
 E_NAME = os.getenv('E_NAME')
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
+client = OpenAI(api_key=os.environ['API_KEY'])
 
+os.environ["GOOGLE_CHROME_BIN"] = r'C:\Program Files\Google\Chrome\Application\chrome.exe'
+#
+os.environ["CHROMEDRIVER_PATH"] = r'C:\Users\PC\Downloads\chromedriver-win64 (2)\chromedriver-win64\chromedriver.exe'
 class Driver:
     def __init__(self):
-        chrome_options = Options()
-        chrome_options.add_experimental_option("detach", True)
-        # chrome_options.add_argument("--headless")
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+        chrome_options.add_argument("--headless")
         chrome_options.add_argument('--start-maximized')
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--no-sandbox")
-        service = Service(ChromeDriverManager().install())
-        self.driver = webdriver.Chrome(service=service, options=chrome_options)
+        self.driver = webdriver.Chrome(service=Service(executable_path=os.environ.get("CHROMEDRIVER_PATH")),
+                                       options=chrome_options)
+
+
 
 
     def sign_in(self, url, email, password):
@@ -411,10 +418,10 @@ Please do not include the answers in the quiz. Aim to keep the total length of t
 def generate_esl_quiz(API_KEY, prompt, max_tokens=550):
     prompt = prompt
 
-    openai.api_key = API_KEY
+    client = OpenAI(api_key=API_KEY)
 
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-4",  # Specify the GPT-4 model
             messages=[
                 {"role": "system", "content": "You are a skilled ESL teacher."},
@@ -422,10 +429,9 @@ def generate_esl_quiz(API_KEY, prompt, max_tokens=550):
             ],
             max_tokens=max_tokens
         )
-        return response['choices'][0]['message']['content']
+        return response.choices[0].message.content
     except Exception as e:
         return f"An error occurred: {e}"
-
 
 def create_word_search(vocab):
     puzzle = WordSearch(vocab)
@@ -499,3 +505,6 @@ if __name__ == '__main__':
 
 
 #works. Change around the loop for choosing pictures as in add e and try optimize it#
+
+
+
