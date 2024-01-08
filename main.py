@@ -12,8 +12,8 @@ import os
 from time import sleep
 from sqlite3 import DatabaseError
 import db_5
-from openai import OpenAI
 
+from openai import OpenAI
 from docx import Document
 from word_search_generator import WordSearch
 import threading
@@ -504,7 +504,6 @@ if __name__ == '__main__':
     app.run(debug=True, port=5001, use_reloader=False)
 
 
-#works. Change around the loop for choosing pictures as in add e and try optimize it#
 
 
 
