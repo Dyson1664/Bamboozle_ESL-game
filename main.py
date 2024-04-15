@@ -1,13 +1,16 @@
 from flask import Flask, render_template, request, redirect, url_for, session, send_file
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
+# from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import WebDriverException
-from webdriver_manager.chrome import ChromeDriverManager
+# from webdriver_manager.chrome import ChromeDriverManager
+
 from dotenv import load_dotenv
+load_dotenv()
+
 import os
 from time import sleep
 from sqlite3 import DatabaseError
@@ -24,20 +27,20 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 
-load_dotenv()
 
 PASSWORD = os.getenv('PASSWORD')
 EMAIL = os.getenv('EMAIL')
 API_KEY = os.getenv('API_KEY')
 E_PASS = os.getenv('E_PASS')
 E_NAME = os.getenv('E_NAME')
+
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 client = OpenAI(api_key=os.environ['API_KEY'])
 
-os.environ["GOOGLE_CHROME_BIN"] = r'C:\Program Files\Google\Chrome\Application\chrome.exe'
-#
-os.environ["CHROMEDRIVER_PATH"] = r'C:\Users\PC\Downloads\chromedriver-win64 (2)\chromedriver-win64\chromedriver.exe'
+os.environ["GOOGLE_CHROME_BIN"] = r"C:\Users\PC\Downloads\chrome-win64 (3)\chrome-win64\chrome.exe"
+
+os.environ["CHROMEDRIVER_PATH"] = r"C:\Users\PC\Downloads\chromedriver-win64 (3)\chromedriver-win64\chromedriver.exe"
 class Driver:
     def __init__(self):
         chrome_options = webdriver.ChromeOptions()
@@ -110,15 +113,17 @@ class Driver:
 
             for vocab in vocabs:
                 if vocab:
-                    self.questions_search_loop(vocab)
+                    try:
+                        self.questions_search_loop(vocab)
+                    except WebDriverException as e:
+                        print("Exception occurred while interacting with the element: ", e)
 
-            close_game = "//a[@class='btn btn-defaulted']"
+            close_game_button = "//a[@class='btn btn-defaulted']"
 
             # Use WebDriverWait to wait for the element to be clickable
-            make_game = WebDriverWait(self.driver, 20).until(
-                EC.element_to_be_clickable((By.XPATH, close_game))
-            )
-            make_game.click()
+            WebDriverWait(self.driver, 20).until(
+                EC.element_to_be_clickable((By.XPATH, close_game_button))
+            ).click()
             print('Bamboozle made')
 
         except WebDriverException as e:
@@ -141,14 +146,10 @@ class Driver:
 
 
         image_library_button_xpath = "//div[@id='question-form']//button[@type='button']"
-        image_library_button = WebDriverWait(self.driver, 20).until(
+        WebDriverWait(self.driver, 20).until(
             EC.element_to_be_clickable((By.XPATH, image_library_button_xpath))
-        )
+        ).click()
 
-        # Click the button
-        image_library_button.click()
-        # is it needed?
-        sleep(3)
         try:
             first_image = WebDriverWait(self.driver, 15).until(
                 EC.element_to_be_clickable(
@@ -167,7 +168,7 @@ class Driver:
             except Exception as e:
                 print('close/re-open')
                 self.close_reopen()
-                print('Couldnt click first pic. Had to close and reopen', e)
+                print('Couldn\'t click first pic. Had to close and reopen', e)
 
             print('Could not click first image')
 
@@ -186,12 +187,9 @@ class Driver:
 
 
             image_library_button_xpath = "//div[@id='question-form']//button[@type='button']"
-            image_library_button = WebDriverWait(self.driver, 20).until(
+            WebDriverWait(self.driver, 20).until(
                 EC.element_to_be_clickable((By.XPATH, image_library_button_xpath))
-            )
-
-            image_library_button.click()
-
+            ).click()
 
             try:
 
@@ -200,7 +198,6 @@ class Driver:
                         (By.CSS_SELECTOR, "div.giphy-gif:nth-of-type(6) img.giphy-gif-img.giphy-img-loaded"))
                 )
                 sixth_image.click()
-
 
             except Exception as e:
                 fifth_image = WebDriverWait(self.driver, 15).until(
@@ -241,7 +238,6 @@ class Driver:
         prompt = create_prompt(vocab_words)
         response = generate_esl_quiz(API_KEY, prompt, max_tokens=550)
         path = create_a_word_document(response)
-        # send_email_with_attachment(r"C:\Users\PC\Desktop\work_webpage\Bamboozle_ESL-game\word_doc.docx")
         send_email_with_attachment(path)
 
 
@@ -265,27 +261,27 @@ def book_unit():
 
 
     if request.method == 'POST':
-        selected_book = request.form.get('bookName')
-        selected_unit = request.form.get('unitNumber')
+        selected_book = request.form.get('bookName', 'None')
+        selected_unit = request.form.get('unitNumber', 'None')
         session['selected_book'] = selected_book
         session['selected_unit'] = selected_unit
 
         if request.form['action'] == 'bamboozle':
-            vocab_words = request.form.get('vocab')
+            vocab_words = request.form.get('vocab', '')
             # vocabs = vocab_words.split(', ') if vocab_words else []
 
-            title = request.form.get('bamboozleTitle')
+            title = request.form.get('bamboozleTitle', '')
             return handle_bamboozle(vocab_words, title, books, book_to_units, kg_vocab, selected_book, selected_unit)
 
         elif request.form['action'] == 'reviewQuiz':
-            vocabs = request.form.get('vocab')
+            vocabs = request.form.get('vocab', '')
             return handle_review_quiz(vocabs, books, kg_vocab, book_to_units, selected_book, selected_unit)
 
         elif request.form['action'] == 'ShowVocab':
 
-            book = request.form.get('bookName')
-            unit = request.form.get('unitNumber')
-            kg_category = request.form.get('kgTitle')
+            book = request.form.get('bookName', 'None')
+            unit = request.form.get('unitNumber', 'None')
+            kg_category = request.form.get('kgTitle', 'KG')
             existing_vocab = request.form.get('vocab', '')
             new_combined_vocab = []
             # Reset selected_book and selected_unit to 'None' after processing ShowVocab
