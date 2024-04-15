@@ -1,17 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for, session, send_file
+from flask import Flask, render_template, request, session
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-# from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import WebDriverException
 # from webdriver_manager.chrome import ChromeDriverManager
 
-from dotenv import load_dotenv
-load_dotenv()
-
-import os
 from time import sleep
 from sqlite3 import DatabaseError
 import db_5
@@ -27,6 +22,9 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 PASSWORD = os.getenv('PASSWORD')
 EMAIL = os.getenv('EMAIL')

@@ -1,31 +1,53 @@
-# ESL Game Creator Bot for Bamboozle
+# Educational Vocabulary App Bot
 
-This bot automates the creation of ESL (English as a Second Language) games on the Bamboozle website through a Flask web server and Selenium WebDriver.
+## Overview
+This Flask-based web application enhances educational processes by automating the creation of interactive vocabulary games and content. Leveraging advanced automation technologies such as Selenium and integrating OpenAI's GPT models, this app serves as a dynamic tool for educators.
 
 ## Features
 
-- User authentication on the Bamboozle website.
-- Game creation with custom titles and vocabularies.
-- Exception handling for robust automation.
+- **Vocabulary Management**: Manages vocabulary storage and retrieval from a PostgreSQL database, organized by book titles and unit numbers.
+- **Interactive Game Creation**: Uses a Selenium-based bot to automate the creation of Bamboozle games, pairing vocabulary words with images to enhance learning engagement.
+- **Content Generation with GPT**: Employs OpenAI's GPT to generate stories and comprehension questions which are then emailed directly to educators.
+- **Word Search Creation**: Automatically generates word searches from selected vocabulary, enhancing classroom learning experiences.
 
 ## Prerequisites
 
 - Python 3.6 or higher
 - Flask
-- Selenium WebDriver
-- ChromeDriver compatible with the installed Chrome version
+- Selenium with ChromeDriver for web automation
+- SMTP server access for email functionalities
+- OpenAI API key
 
 ## Installation
-1. Clone the repository:
+
+1. **Clone the repository**:
    ```sh
    git clone https://github.com/Dyson1664/Bamboozle_ESL-game.git
-   
 2. pip install -r requirements.txt
-   
-3. Set environment variables for credentials:
-   export EMAIL='your_email@example.com'
-   export PASSWORD='your_password'
-
+3. Set up a PostgreSQL database and update the database credentials in the `config.py` file.
 ## Configuration
-- Update the path to chromedriver.exe in the Driver class if necessary.
-- Set a secure app.secret_key for session management in Flask.
+
+### Configure Environment
+Configure the necessary environment variables in a .env file or directly in your system's environment:
+```plaintext
+EMAIL=your-email@example.com
+PASSWORD=your-email-password
+API_KEY=your-openai-api-key
+E_PASS=email-password
+E_NAME=email-username
+DATABASE_URL=your-database-url
+```
+
+Replace each placeholder with your actual data.
+
+### Update ChromeDriver Path
+Update the path to chromedriver.exe in the Driver class to match your system's ChromeDriver location.
+
+### Running the Application
+After completing the installation and configuration, start the server by running:
+```
+python app.py
+```
+
+Navigate to http://localhost:5000/ to access the application.
+
